@@ -66,6 +66,13 @@ def make_public_patient(patient):
 def get_patients():
     return jsonify({'patients': [make_public_patient(patient) for patient in patients]})
 
+# Return all patient records with authorization
+@app.route('/openemr/api/v0.1/patients', methods=['GET'])
+# Uncomment if you want to require a pasword to use this function
+@auth.login_required
+def get_patients_auth():
+    return jsonify({'patients': [make_public_patient(patient) for patient in patients]})
+
 # Return a specific patient record based on id #
 @app.route('/openemr/api/v0.0/patients/<int:patient_id>', methods=['GET'])
 # Uncomment if you want to require a pasword to use this function
