@@ -115,6 +115,7 @@ print_table(){
 	echo "3. Create record"
 	echo "4. Update record"
 	echo "5. Delete record"
+	echo "6. Exit"
 	echo 
 }
 
@@ -128,10 +129,10 @@ get_response(){
 		print_table
 		get_response
 	fi
-	echo "Running test $key..."
+	if [ "$key" != "6" ]; then
+		echo "Running test $key..."
+	fi
 	sleep .5
-
-	
 
 	if [ "$key" -eq "1" ]
 	then
@@ -148,6 +149,9 @@ get_response(){
 	elif [ "$key" -eq "5" ]
 	then
 		delete_record
+	elif [ "$key" -eq "6" ]
+	then
+		exit
 	fi
 	echo
 
