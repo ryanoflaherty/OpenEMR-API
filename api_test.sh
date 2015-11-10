@@ -1,6 +1,7 @@
 #!/bin/bash
 
 WEBPATH="http://52.32.30.227:5000/openemr/api/v0.0/patients"
+WEBPATH_AUTH="http://52.32.30.227:5000/openemr/api/v0.1/patients"
 
 pause(){
  read -n1 -rsp $'Press any key to continue...\n'
@@ -52,8 +53,8 @@ update_record(){
 	read -n1 -p "Enter Patient ID to update..." key
 	echo
 	echo "Enter values to update fields. If you do not wish to update, hit enter."
-	read -p "Enter first name : " firstName
-	read -p "Enter last name : " lastName
+	read -p "Enter first name: " firstName
+	read -p "Enter last name: " lastName
 	read -p "Enter date of birth: " dob
 	read -p "Enter height: " height
 	read -p "Enter weight: " weight
@@ -105,6 +106,22 @@ delete_record(){
 	echo "Response from server..."
 	curl -X DELETE $WEBPATH/$key
 	echo
+}
+
+authorization_check(){
+	echo "Checking 'user authorization' functionality..."
+	echo "Username and password required to view patient records..."
+	sleep 1
+	read -p "Enter username: " username
+	read -p "Enter password: " password
+	echo
+	echo "curl -u $username:$password -i $WEBPATH_AUTH"
+	echo "..."
+	echo 
+	echo "Response from server..."
+	curl -u $username:$password -i $WEBPATH_AUTH
+	echo
+
 }
 
 print_table(){
