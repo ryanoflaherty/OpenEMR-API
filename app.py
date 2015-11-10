@@ -31,8 +31,8 @@ def not_found(error):
 patients = [
     {
         'id': 1,
-        'fname': u'Ryan',
-        'lname': u'OFlaherty',
+        'firstName': u'Ryan',
+        'lastName': u'OFlaherty',
         'dob': u'11/19/1994',
         'height': 71,
         'weight': 185,
@@ -40,8 +40,8 @@ patients = [
     },
     {
         'id': 2,
-        'fname': u'Joseph',
-        'lname': u'Tierney',
+        'firstName': u'Joseph',
+        'lastName': u'Tierney',
         'dob': u'03/03/1994',
         'height': 72,
         'weight': 140,
@@ -85,8 +85,8 @@ def create_patient():
 		abort(404)
 	patient = {
 		'id': patients[-1]['id'] + 1,
-        'fname': request.json['fname'],
-        'lname': request.json['lname'],
+        'firstName': request.json['firstName'],
+        'lastName': request.json['lastName'],
         'dob': request.json['dob'],
         'height': request.json['height'],
         'weight': request.json['weight'],
@@ -105,16 +105,16 @@ def update_patient(patient_id):
 		abort(404)
 	if not request.json:
 		abort(400)
-	if 'fname' in request.json and type(request.json['fname']) != unicode:
+	if 'firstName' in request.json and type(request.json['firstName']) != unicode:
 		abort(400)
-	if 'lname' in request.json and type(request.json['lname']) != unicode:
+	if 'lastName' in request.json and type(request.json['lastName']) != unicode:
 		abort(400)
 	if 'dob' in request.json and type(request.json['dob']) != unicode:
 		abort(400)
 	if 'sex' in request.json and type(request.json['sex']) != unicode:
 		abort(400)
-	patient[0]['fname'] = request.json.get('fname', patient[0]['fname'])
-	patient[0]['lname'] = request.json.get('lname', patient[0]['lname'])
+	patient[0]['firstName'] = request.json.get('firstName', patient[0]['firstName'])
+	patient[0]['lastName'] = request.json.get('lastName', patient[0]['lastName'])
 	patient[0]['dob'] = request.json.get('dob', patient[0]['dob'])
 	patient[0]['height'] = request.json.get('height', patient[0]['height'])
 	patient[0]['weight'] = request.json.get('weight', patient[0]['weight'])
