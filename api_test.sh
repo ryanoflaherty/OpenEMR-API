@@ -48,7 +48,7 @@ create_record(){
 }
 
 update_record(){
-	echo "Checking 'create record' functionality..."
+	echo "Checking 'update record' functionality..."
 	read -n1 -p "Enter Patient ID to update..." key
 	echo
 	echo "Enter values to update fields. If you do not wish to update, hit enter."
@@ -115,7 +115,8 @@ print_table(){
 	echo "3. Create record"
 	echo "4. Update record"
 	echo "5. Delete record"
-	echo "6. Exit"
+	echo "6. Authorization"
+	echo "7. Exit"
 	echo 
 }
 
@@ -151,13 +152,15 @@ get_response(){
 		delete_record
 	elif [ "$key" -eq "6" ]
 	then
+		authorization_check
+	elif [ "$key" -eq "7" ]
+	then
 		exit
 	fi
 	echo
 
 }
 
-# Script starts here
 echo "==========================================================="
 echo "This script will test the functionality of the OpenEMR API."
 echo
