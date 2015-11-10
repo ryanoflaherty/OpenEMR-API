@@ -36,7 +36,7 @@ create_record(){
 	read -p "Enter sex: " sex
 	echo "Creating patient record..."
 	echo "curl -i -H \"Content-Type: application/json\" -X POST -d '{\"firstName\":\"$firstName\", \"lastName\":\"$lastName\", \"dob\":\"$dob\", \"height\":\"$height\", \"weight\":\"$weight\", \"sex\":\"$sex\"}' $WEBPATH"
-	curl -i -H "Content-Type: application/json" -X POST -d '{"firstName": "'$firstName'", "lastName":"'$lastName'", "dob":"'$dob'", "height":"'$height'", "weight":"'$weight'", "sex":"'$sex'"}' $WEBPATH
+	curl -i -H "Content-Type: application/json" -X POST -d '{"firstName": "'$firstName'", "lastName":"'$lastName'", "dob":"'$dob'", "height":'$height', "weight":'$weight', "sex":"'$sex'"}' $WEBPATH
 
 }
 
