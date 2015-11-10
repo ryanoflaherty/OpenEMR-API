@@ -147,7 +147,7 @@ get_response(){
 		print_table
 		get_response
 	fi
-	if [ "$key" != "6" ]; then
+	if [ "$key" != "7" ]; then
 		echo "Running test $key..."
 	fi
 	sleep .5
