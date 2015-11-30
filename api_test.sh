@@ -1,7 +1,7 @@
 #!/bin/bash
 
-WEBPATH="http://52.32.30.227:5000/openemr/api/v0.0/patients"
-WEBPATH_AUTH="http://52.32.30.227:5000/openemr/api/v0.1/patients"
+WEBPATH="http://52.34.161.30:5000/openemr/api/v0.0/patients"
+WEBPATH_AUTH="http://52.34.161.30:5000/openemr/api/v0.1/patients"
 
 pause(){
  read -n1 -rsp $'Press any key to continue...\n'
