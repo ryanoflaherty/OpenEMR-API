@@ -78,8 +78,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'openemr',
-	'USER': 'API_server',
-	'PASSWORD': 'django',
+	'USER': 'root',
+	'PASSWORD': 'openemr',
 	'HOST': 'localhost',
 	'PORT': '3306',
     }
