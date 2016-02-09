@@ -236,3 +236,118 @@ class PatientData(models.Model):
         managed = False
         db_table = 'patient_data'
 
+class FormEncounter(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    date = models.DateTimeField(blank=True, null=True)
+    reason = models.TextField(blank=True, null=True)
+    facility = models.TextField(blank=True, null=True)
+    facility_id = models.IntegerField()
+    pid = models.BigIntegerField(blank=True, null=True)
+    encounter = models.BigIntegerField(blank=True, null=True)
+    onset_date = models.DateTimeField(blank=True, null=True)
+    sensitivity = models.CharField(max_length=30, blank=True, null=True)
+    billing_note = models.TextField(blank=True, null=True)
+    pc_catid = models.IntegerField()
+    last_level_billed = models.IntegerField()
+    last_level_closed = models.IntegerField()
+    last_stmt_date = models.DateField(blank=True, null=True)
+    stmt_count = models.IntegerField()
+    provider_id = models.IntegerField(blank=True, null=True)
+    supervisor_id = models.IntegerField(blank=True, null=True)
+    invoice_refno = models.CharField(max_length=31)
+    referral_source = models.CharField(max_length=31)
+    billing_facility = models.IntegerField()
+
+    def __unicode__(self):
+         return str(self.pid) + ', ' + str(self.encounter)
+
+    class Meta:
+        managed = False
+        db_table = 'form_encounter'
+
+class IssueEncounter(models.Model):
+    # (ming) set primary_key to pid instead of the default autoincremented id
+    pid = models.IntegerField(primary_key=True)
+    list_id = models.IntegerField()
+    encounter = models.IntegerField()
+    resolved = models.IntegerField()
+
+    def __unicode__(self):
+         return str(self.pid) + ', ' + str(self.encounter) + ', ' + str(self.list_id)
+
+    class Meta:
+        managed = False
+        db_table = 'issue_encounter'
+        unique_together = (('pid', 'list_id', 'encounter'),)
+        
+class Forms(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    date = models.DateTimeField(blank=True, null=True)
+    encounter = models.BigIntegerField(blank=True, null=True)
+    form_name = models.TextField(blank=True, null=True)
+    form_id = models.BigIntegerField(blank=True, null=True)
+    pid = models.BigIntegerField(blank=True, null=True)
+    user = models.CharField(max_length=255, blank=True, null=True)
+    groupname = models.CharField(max_length=255, blank=True, null=True)
+    authorized = models.IntegerField(blank=True, null=True)
+    deleted = models.IntegerField()
+    formdir = models.TextField(blank=True, null=True)
+
+    def __unicode__(self):
+         return str(self.pid) + ', ' + str(self.encounter) + ', ' + self.form_name
+
+    class Meta:
+        managed = False
+        db_table = 'forms'
+
+class Lists(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    date = models.DateTimeField(blank=True, null=True)
+    type = models.CharField(max_length=255, blank=True, null=True)
+    title = models.CharField(max_length=255, blank=True, null=True)
+    begdate = models.DateField(blank=True, null=True)
+    enddate = models.DateField(blank=True, null=True)
+    returndate = models.DateField(blank=True, null=True)
+    occurrence = models.IntegerField(blank=True, null=True)
+    classification = models.IntegerField(blank=True, null=True)
+    referredby = models.CharField(max_length=255, blank=True, null=True)
+    extrainfo = models.CharField(max_length=255, blank=True, null=True)
+    diagnosis = models.CharField(max_length=255, blank=True, null=True)
+    activity = models.IntegerField(blank=True, null=True)
+    comments = models.TextField(blank=True, null=True)
+    pid = models.BigIntegerField(blank=True, null=True)
+    user = models.CharField(max_length=255, blank=True, null=True)
+    groupname = models.CharField(max_length=255, blank=True, null=True)
+    outcome = models.IntegerField()
+    destination = models.CharField(max_length=255, blank=True, null=True)
+    reinjury_id = models.BigIntegerField()
+    injury_part = models.CharField(max_length=31)
+    injury_type = models.CharField(max_length=31)
+    injury_grade = models.CharField(max_length=31)
+    reaction = models.CharField(max_length=255)
+    external_allergyid = models.IntegerField(blank=True, null=True)
+    erx_source = models.CharField(max_length=1)
+    erx_uploaded = models.CharField(max_length=1)
+    modifydate = models.DateTimeField()
+
+    def __unicode__(self):
+         return str(self.pid) + ', ' + self.user + ', ' + self.type
+
+    class Meta:
+        managed = False
+        db_table = 'lists'
+
+class ListsTouch(models.Model):
+    # (ming) set primary_key to pid instead of the default autoincremented id
+    pid = models.BigIntegerField(primary_key=True)
+    type = models.CharField(max_length=255)
+    date = models.DateTimeField(blank=True, null=True)
+
+    def __unicode__(self):
+         return str(self.pid) + ', ' + self.type
+
+    class Meta:
+        managed = False
+        db_table = 'lists_touch'
+        unique_together = (('pid', 'type'),)
+
