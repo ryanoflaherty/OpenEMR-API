@@ -80,8 +80,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'openemr',
-	'USER': 'root',
-	'PASSWORD': 'openemr',
+	'USER': 'django',
+	'PASSWORD': 'django',
 	'HOST': 'localhost',
 	'PORT': '3306',
     }
@@ -112,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
