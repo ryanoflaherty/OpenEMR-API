@@ -163,7 +163,7 @@ class PatientData(models.Model):
 #    language = models.CharField(max_length=255)
 #    financial = models.CharField(max_length=255)
 #    drivers_license = models.CharField(max_length=255)
-#    ss = models.CharField(max_length=255)
+    ss = models.CharField(max_length=255)
 #    occupation = models.TextField(blank=True, null=True)
 #    phone_home = models.CharField(max_length=255)
 #    phone_biz = models.CharField(max_length=255)
