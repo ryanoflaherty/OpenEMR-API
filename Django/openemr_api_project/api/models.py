@@ -127,7 +127,7 @@ class InsuranceData(models.Model):
 #    subscriber_employer_city = models.CharField(max_length=255, blank=True, null=True)
 #    copay = models.CharField(max_length=255, blank=True, null=True)
     date = models.DateField()
-    pid = models.BigIntegerField(primary_key=True)
+    pid = models.BigIntegerField()
     subscriber_sex = models.CharField(max_length=25, blank=True, null=True)
 #    accept_assignment = models.CharField(max_length=5)
 #    policy_type = models.CharField(max_length=25)
@@ -141,7 +141,8 @@ class InsuranceData(models.Model):
         unique_together = (('pid', 'type', 'date'),)
 
 class PatientData(models.Model):
-    pid = models.BigIntegerField(unique=True, primary_key=True)
+    id = models.BigIntegerField(primary_key=True)
+    pid = models.BigIntegerField(unique=True)
     pubpid = models.CharField(max_length=255)
     date = models.DateTimeField(blank=True, null=True)
     fname = models.CharField(max_length=255)
