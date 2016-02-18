@@ -25,9 +25,19 @@ router.register(r'groups', api_views.GroupViewSet)
 router.register(r'patient-data', api_views.PatientDataViewSet)
 router.register(r'history-data', api_views.HistoryDataViewSet)
 
+# Home page and Admin portal
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    url(r'^', admin.site.urls),
+    url(r'^admin/$', admin.site.urls),
+]
+
+# API
+urlpatterns += [
     url(r'^api/', include(router.urls)),
+]
+
+# Auth & Token
+urlpatterns += [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'api-token-auth/', views.obtain_auth_token),
+    url(r'^api-token-auth/', views.obtain_auth_token),
 ]

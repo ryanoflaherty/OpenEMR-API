@@ -83,7 +83,7 @@ DATABASES = {
         'NAME': 'openemr',
 	'USER': 'django',
 	'PASSWORD': 'django',
-	'HOST': 'localhost',
+	'HOST': '52.24.153.94',
 	'PORT': '3306',
     }
 }
