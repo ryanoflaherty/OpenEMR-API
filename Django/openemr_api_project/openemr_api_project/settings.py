@@ -44,9 +44,12 @@ INSTALLED_APPS = [
     'registration',
 ]
 
+REGISTRATION_OPEN = True
 ACCOUNT_ACTIVATION_DAYS = 7
 REGISTRATION_DEFAULT_FROM_EMAIL = "noreply@remotehcs.com"
 REGISTRATION_AUTO_LOGIN = True
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
