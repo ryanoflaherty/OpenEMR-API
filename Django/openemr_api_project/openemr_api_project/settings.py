@@ -44,13 +44,6 @@ INSTALLED_APPS = [
     'registration',
 ]
 
-REGISTRATION_OPEN = True
-ACCOUNT_ACTIVATION_DAYS = 7
-REGISTRATION_DEFAULT_FROM_EMAIL = "noreply@remotehcs.com"
-REGISTRATION_AUTO_LOGIN = True
-LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/'
-
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -151,3 +144,21 @@ REST_FRAMEWORK = {
 	),
 	'PAGE_SIZE': 10
 }
+
+# Email Settings
+EMAIL_HOST = 'mail.privateemail.com'
+EMAIL_HOST_USER = 'noreply@remotehcs.com'
+EMAIL_HOST_PASSWORD = 'seniordesign15'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Registration Settings
+REGISTRATION_OPEN = True
+ACCOUNT_ACTIVATION_DAYS = 7
+REGISTRATION_DEFAULT_FROM_EMAIL = "Remote HCS <noreply@remotehcs.com>"
+REGISTRATION_AUTO_LOGIN = True
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/admin'
+

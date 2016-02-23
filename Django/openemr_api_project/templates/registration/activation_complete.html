@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 {% load i18n %}
 
+{% block header %}
+<header>
+    <nav>
+        <a href="/">Home</a>
+    </nav>
+</header>
+{% endblock %}
+
 {% block content %}
+<section id="login" class="container content-section text-center">
 <p>{% trans "Your account is now activated." %}</p>
+</section>
 {% endblock %}

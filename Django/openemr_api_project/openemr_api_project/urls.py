@@ -19,6 +19,9 @@ from rest_framework import routers
 from api import views as api_views
 from rest_framework.authtoken import views
 
+
+admin.autodiscover()
+
 router = routers.DefaultRouter()
 router.register(r'users', api_views.UserViewSet)
 router.register(r'groups', api_views.GroupViewSet)
