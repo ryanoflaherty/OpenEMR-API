@@ -3,6 +3,12 @@ from django.contrib.auth.models import User, Group
 from api.models import PatientData, HistoryData
 from rest_framework import viewsets
 from api.serializers import UserSerializer, GroupSerializer, PatientDataSerializer, HistoryDataSerializer
+from django.template import RequestContext
+from django.shortcuts import render_to_response
+
+
+def index(request):
+		return render_to_response('bootstrap/index.html')
 
 class UserViewSet(viewsets.ModelViewSet):
 	# API endpoint that allows users to be viewed or deleted
@@ -23,3 +29,4 @@ class HistoryDataViewSet(viewsets.ModelViewSet):
 	# API endpoint for patient data to be viewed or added to
 	queryset = HistoryData.objects.all()
 	serializer_class = HistoryDataSerializer
+

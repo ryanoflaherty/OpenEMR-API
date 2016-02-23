@@ -25,15 +25,16 @@ router.register(r'groups', api_views.GroupViewSet)
 router.register(r'patient-data', api_views.PatientDataViewSet)
 router.register(r'history-data', api_views.HistoryDataViewSet)
 
-# Home page and Admin portal
+# Home page
 urlpatterns = [
-    url(r'^', admin.site.urls),
-    url(r'^admin/$', admin.site.urls),
+   url(r'^$', api_views.index, name='index'),
 ]
 
-# API
+# API, Admin, and Accounts portal
 urlpatterns += [
+    url(r'^admin/', admin.site.urls),
     url(r'^api/', include(router.urls)),
+    url(r'^accounts/', include('registration.backends.default.urls')),
 ]
 
 # Auth & Token
