@@ -3,7 +3,7 @@ from django.db import models
 
 # Create your models here.
 class HistoryData(models.Model):
-    id = models.BigIntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     date = models.DateTimeField(blank=True, null=True)
     pid = models.BigIntegerField(null=False, )
     tobacco = models.TextField(blank=True, null=True)

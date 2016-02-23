@@ -18,18 +18,9 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 class HistoryDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = HistoryData
-        fields = (
-            'date',
-            'pid',
-            'tobacco',
-        )
 
 class PatientDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PatientData
-        fields = (
-			'fname',
-			'lname',
-			'date',
-        )
+
