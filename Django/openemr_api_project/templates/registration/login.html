@@ -1,7 +1,10 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load i18n %}
 
+{% block title %} | Login {% endblock %}
+
 {% block content %}
+<section id="login" class="container content-section text-center">
 <form method="post" action=".">
   {% csrf_token %} 
   {{ form.as_p }}
@@ -10,6 +13,7 @@
   <input type="hidden" name="next" value="{{ next }}" />
 </form>
 
-<p>{% trans "Forgot password" %}? <a href="{% url 'auth_password_reset' %}">{% trans "Reset it" %}</a>!</p>
+<p style="padding-top:20px">{% trans "Forgot password" %}? <a href="{% url 'auth_password_reset' %}">{% trans "Reset it" %}</a>!</p>
 <p>{% trans "Not member" %}? <a href="{% url 'registration_register' %}">{% trans "Register" %}</a>!</p>
+</section>
 {% endblock %}
