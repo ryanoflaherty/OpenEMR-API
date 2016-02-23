@@ -2,6 +2,12 @@
 ###################
 *.pyc
 
+=======
+# Local Repo Files #
+####################
+openemr_venv/
+.idea/
+
 # Compiled source #
 ###################
 *.com
