@@ -87,7 +87,7 @@ DATABASES = {
         'NAME': 'openemr',
         'USER': 'django',
         'PASSWORD': 'django',
-        'HOST': '52.36.163.49',
+        'HOST': '52.36.163.49', # remotehcs.com
         'PORT': '3306',
     }
 }
@@ -136,13 +136,13 @@ STATICFILES_DIRS = (
 
 # REST Framework
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-    'PAGE_SIZE': 10
+	'DEFAULT_AUTHENTICATION_CLASSES': (
+		'rest_framework.authentication.TokenAuthentication',
+	),
+	'DEFAULT_PERMISSION_CLASSES': (
+		'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+	),
+	'PAGE_SIZE': 10
 }
 
 # Email Settings
@@ -161,3 +161,4 @@ REGISTRATION_DEFAULT_FROM_EMAIL = "Remote HCS <noreply@remotehcs.com>"
 REGISTRATION_AUTO_LOGIN = True
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/admin'
+
