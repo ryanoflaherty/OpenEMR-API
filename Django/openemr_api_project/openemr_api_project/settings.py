@@ -87,7 +87,7 @@ DATABASES = {
         'NAME': 'openemr',
         'USER': 'django',
         'PASSWORD': 'django',
-        'HOST': 'localhost',
+        'HOST': '52.36.163.49', # remotehcs.com
         'PORT': '3306',
     }
 }
