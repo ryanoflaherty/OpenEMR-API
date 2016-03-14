@@ -87,7 +87,7 @@ DATABASES = {
         'NAME': 'openemr',
         'USER': 'django',
         'PASSWORD': 'django',
-        'HOST': '52.36.163.49', # remotehcs.com
+        'HOST': 'localhost', # remotehcs.com
         'PORT': '3306',
     }
 }
@@ -138,6 +138,7 @@ STATICFILES_DIRS = (
 REST_FRAMEWORK = {
 	'DEFAULT_AUTHENTICATION_CLASSES': (
 		'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
 	),
 	'DEFAULT_PERMISSION_CLASSES': (
 		'rest_framework.permissions.IsAuthenticatedOrReadOnly',
