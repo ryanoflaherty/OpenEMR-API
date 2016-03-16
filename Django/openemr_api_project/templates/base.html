@@ -7,21 +7,18 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {% block meta %}
     <meta name="description" content="">
     <meta name="author" content="">
+    {% endblock %}
 
     <title>RemoteHCS{% block title %}{% endblock %}</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Custom CSS -->
-    <link href="/static/bootstrap/css/grayscale.css" rel="stylesheet">
-
-    <!-- Custom Fonts -->
-    <link href="/static/bootstrap/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
-    <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+    {% block head %}{% endblock %}
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -32,11 +29,21 @@
 
 </head>
 
-<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+
+<div id="content">
 
     <!-- Header -->
     {% block header %}
+        <a href="{% url 'index' %}">{% trans "Home" %}</a> |
 
+    {% if user.is_authenticated %}
+        {% trans "Logged in" %}: {{ user.username }}
+        (<a href="{% url 'auth_logout' %}">{% trans "Log out" %}</a> |
+        <a href="{% url 'auth_password_change' %}">{% trans "Change password" %}</a>)
+    {% else %}
+       <a href="{% url 'auth_login' %}">{% trans "Log in" %}</a>
+    {% endif %}
+    <hr />
     {% endblock %}
 
 
@@ -45,28 +52,6 @@
 
     {% endblock %}
 
-    {% comment %}
-    <div id="header">
-    {% block header %}
-
-    <a href="{% url 'index' %}">{% trans "Home" %}</a> |
-
-    {% if user.is_authenticated %}
-        {% trans "Logged in" %}: {{ user.username }} 
-        (<a href="{% url 'auth_logout' %}">{% trans "Log out" %}</a> | 
-        <a href="{% url 'auth_password_change' %}">{% trans "Change password" %}</a>)
-    {% else %}
-       <a href="{% url 'auth_login' %}">{% trans "Log in" %}</a>
-    {% endif %}
-    <hr />
-    {% endblock %}
-    </div>
-
-    <div id="content">
-    {% block content %}{% endblock %}
-    </div>
-
-    {% endcomment%}
 
      <!-- Footer -->
     {% block footer %}
@@ -77,7 +62,5 @@
     </footer>
     {% endblock %}
 
-</body>
-
-
+</div>
 </html>

@@ -1,5 +1,21 @@
 {% extends 'base.html' %}
 
+
+<!-- Within Head tag -->
+{% block head %}
+<!-- Custom CSS -->
+    <link href="/static/bootstrap/css/grayscale.css" rel="stylesheet">
+<!-- Custom Fonts -->
+    <link href="/static/bootstrap/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+{% endblock %}
+
+
+
+
+<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+
 {% block header %}
 <!-- Navigation -->
     <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
@@ -126,3 +142,4 @@
     <script src="/static/bootstrap/js/grayscale.js"></script>
 
 {% endblock %}
+</body>

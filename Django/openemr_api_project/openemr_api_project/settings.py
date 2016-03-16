@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'registration',
+    'django_filters',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -87,7 +88,7 @@ DATABASES = {
         'NAME': 'openemr',
         'USER': 'django',
         'PASSWORD': 'django',
-        'HOST': 'localhost', # remotehcs.com
+        'HOST': '52.36.163.49', # remotehcs.com / 52.36.163.49
         'PORT': '3306',
     }
 }
@@ -143,7 +144,8 @@ REST_FRAMEWORK = {
 	'DEFAULT_PERMISSION_CLASSES': (
 		'rest_framework.permissions.IsAuthenticatedOrReadOnly',
 	),
-	'PAGE_SIZE': 10
+	'PAGE_SIZE': 10,
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
 }
 
 # Email Settings
@@ -162,4 +164,3 @@ REGISTRATION_DEFAULT_FROM_EMAIL = "Remote HCS <noreply@remotehcs.com>"
 REGISTRATION_AUTO_LOGIN = True
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/admin'
-
