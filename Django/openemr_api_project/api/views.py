@@ -30,7 +30,7 @@ class PatientDataViewSet(viewsets.ModelViewSet):
 	queryset = PatientData.objects.all()
 	serializer_class = PatientDataSerializer
 	filter_backends = (filters.DjangoFilterBackend,)
-	filter_fields = ('fname', 'lname')
+	filter_fields = ('fname', 'lname', '',)
 
 
 class HistoryDataViewSet(viewsets.ModelViewSet):
@@ -44,7 +44,7 @@ class MedicalHistoryViewSet(viewsets.ModelViewSet):
 	serializer_class = MedicalHistorySerializer
 
 
-class ListHistoryData(generics.ListAPIView):
+class HistoryDataList(generics.ListAPIView):
 	serializer_class = HistoryDataSerializer
 	#authentication_classes = (authentication.TokenAuthentication)
 	#permission_classes = (permissions.IsAuthenticatedOrReadOnly)
@@ -52,3 +52,9 @@ class ListHistoryData(generics.ListAPIView):
 	def get_queryset(self):
 		pid = self.kwargs['pid']
 		return HistoryData.objects.filter(pid=pid)
+
+class PatientDataList(generics.ListAPIView):
+	serializer_class = PatientDataSerializer
+	queryset = PatientData.objects.all()
+	filter_backends = (filters.DjangoFilterBackend,)
+	filter_fields = ('fname', 'lname',)
