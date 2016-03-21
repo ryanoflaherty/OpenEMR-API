@@ -5,3 +5,4 @@ django-smtp-ssl==1.0
 djangorestframework==3.3.2
 MySQL-python==1.2.5
 wheel==0.24.0
+gunicorn==19.4.3
