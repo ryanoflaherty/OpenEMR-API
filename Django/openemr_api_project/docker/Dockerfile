@@ -29,7 +29,7 @@ RUN apt-get -y install binutils libproj-dev gdal-bin
 
 RUN apt-get install -y nano wget
 # build dependencies for mariadb and image bindings
-RUN apt-get install -y python-imaging python-dev mariadb-server libssl-dev libmariadbclient-lgpl-dev
+RUN apt-get install -y python-imaging python-dev mariadb-server libssl-dev libmariadb-client-lgpl-dev
 
 ##############################################################################
 # setup startup script for gunicorn WSGI service
