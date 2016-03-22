@@ -7,6 +7,9 @@
 ####################
 openemr_venv/
 .idea/
+Django/venv/
+ElasticBeanstalk/venv/
+*/.elasticbeanstalk/
 
 # Compiled source #
 ###################
