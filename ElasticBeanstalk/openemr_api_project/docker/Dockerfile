@@ -27,7 +27,7 @@ RUN apt-get -y install binutils libproj-dev gdal-bin
 # A Few pip installs not commonly in requirements.txt
 ##############################################################################
 
-RUN apt-get install -y nano wget
+RUN apt-get install -y nano wget vim git
 # build dependencies for postgres and image bindings
 RUN apt-get install -y python-imaging python-psycopg2
 
