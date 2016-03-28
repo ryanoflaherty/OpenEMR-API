@@ -30,7 +30,7 @@ class PatientDataViewSet(viewsets.ModelViewSet):
 	queryset = PatientData.objects.all()
 	serializer_class = PatientDataSerializer
 	filter_backends = (filters.DjangoFilterBackend,)
-	filter_fields = ('fname', 'lname', '',)
+	filter_fields = ('pid', 'pubpid', 'ss', 'fname', 'lname', 'mname', 'dob', 'sex', 'status', 'email', 'street', 'postal_code', 'city', 'state', 'country_code')
 
 
 class HistoryDataViewSet(viewsets.ModelViewSet):
