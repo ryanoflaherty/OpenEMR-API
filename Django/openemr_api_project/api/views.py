@@ -57,4 +57,4 @@ class PatientDataList(generics.ListAPIView):
 	serializer_class = PatientDataSerializer
 	queryset = PatientData.objects.all()
 	filter_backends = (filters.DjangoFilterBackend,)
-	filter_fields = ('fname', 'lname',)
+	filter_fields = ('pid', 'pubpid', 'ss', 'fname', 'lname', 'mname', 'dob', 'sex', 'status', 'email', 'street', 'postal_code', 'city', 'state', 'country_code')
