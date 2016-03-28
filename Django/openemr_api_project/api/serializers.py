@@ -42,6 +42,7 @@ class PatientDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PatientData
+        exclude = ('med_his',)
 
 
 class MedicalHistorySerializer(serializers.ModelSerializer):
