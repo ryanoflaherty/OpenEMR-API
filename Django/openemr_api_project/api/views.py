@@ -23,12 +23,14 @@ def index(request):
 """
 This view constructs the API root for browsable API.
 """
+
+
 @api_view(['GET'])
 def api_root(request, format=None):
-    return Response({
-        'records/patient-data': reverse('patient-data-list', request=request, format=format),
-        'records/pid/history-data': reverse('history-data-list', request=request, format=format, kwargs={'pid':1})
-    })
+	return Response({
+		'records/patient-data': reverse('patient-data-list', request=request, format=format),
+		'records/{pid}/history-data': reverse('history-data-list', request=request, format=format, kwargs={'pid':1}),
+	})
 
 """
 This view allow the user to use .list() or .retrieve() for history data based on the users pid.
