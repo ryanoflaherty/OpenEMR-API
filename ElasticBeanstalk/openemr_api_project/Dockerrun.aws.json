@@ -1,7 +1,7 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "remotehcs/openemr_api_project:latest",
+    "Name": "remotehcs/test_ebextensions:latest",
     "Update": "true"
   },
   "Ports": [
