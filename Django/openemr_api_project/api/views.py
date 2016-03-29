@@ -28,8 +28,11 @@ This view constructs the API root for browsable API.
 @api_view(['GET'])
 def api_root(request, format=None):
 	return Response({
+		'records': reverse('medical-record-create-update', request=request, format=format),
 		'records/patient-data': reverse('patient-data-list', request=request, format=format),
 		'records/{pid}/history-data': reverse('history-data-list', request=request, format=format, kwargs={'pid':1}),
+		'users': reverse('users', request=request, format=format),
+		'groups': reverse('groups', request=request, format=format),
 	})
 
 """
@@ -62,7 +65,7 @@ This view allow the user to view and modify MedicalHistory records.
 """
 
 
-class MedicalHistoryViewSet(viewsets.ModelViewSet):
+class CreateUpdateMedicalRecord(generics.ListCreateAPIView, generics.UpdateAPIView):
 	queryset = MedicalHistory.objects.all()
 	serializer_class = MedicalHistorySerializer
 

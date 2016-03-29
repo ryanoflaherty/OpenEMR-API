@@ -142,7 +142,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
 	),
 	'DEFAULT_PERMISSION_CLASSES': (
-		'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+		'rest_framework.permissions.AllowAny', # IsAuthenticatedOrReadOnly
 	),
 	'PAGE_SIZE': 5,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
