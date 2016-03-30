@@ -27,9 +27,21 @@ RUN apt-get -y install binutils libproj-dev gdal-bin
 # A Few pip installs not commonly in requirements.txt
 ##############################################################################
 
-RUN apt-get install -y nano wget vim git
+RUN apt-get install -y nano wget vim git nginx zip curl
 # build dependencies for mariadb and image bindings
 RUN apt-get install -y python-imaging python-dev mariadb-server libssl-dev libmariadb-client-lgpl-dev
+
+
+##############################################################################
+# Nginx conf setting
+#############################################################################
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+RUN curl -o /usr/share/nginx/www/master.zip -L https://codeload.github.com/gabrielecirulli/2048/zip/master
+RUN cd /usr/share/nginx/www/ && unzip master.zip && mv 2048-master/* . && rm -rf 2048-master master.zip
+
+EXPOSE 80
+
+CMD ["/usr/sbin/nginx", "-c", "/etc/nginx/nginx.conf"]
 
 ##############################################################################
 # setup startup script for gunicorn WSGI service
