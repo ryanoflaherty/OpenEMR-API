@@ -36,6 +36,7 @@ RUN apt-get install -y python-imaging python-dev mariadb-server libssl-dev libma
 # Nginx conf setting
 #############################################################################
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+RUN mkdir /usr/share/nginx/www
 RUN curl -o /usr/share/nginx/www/master.zip -L https://codeload.github.com/gabrielecirulli/2048/zip/master
 RUN cd /usr/share/nginx/www/ && unzip master.zip && mv 2048-master/* . && rm -rf 2048-master master.zip
 
