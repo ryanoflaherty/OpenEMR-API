@@ -1,9 +1,9 @@
 # Base python 3.4 build, inspired by https://github.com/Pakebo/eb-docker-django-simple
 # Python 3.4 | Django
 
-#FROM python:3.4
-FROM amazon/aws-eb-python:3.4.2-onbuild-3.5.1
-#MAINTAINER Glyn Jackson (me@glynjackson.org)
+FROM python:3.4
+#FROM amazon/aws-eb-python:3.4.2-onbuild-3.5.1
+MAINTAINER Glyn Jackson (me@glynjackson.org)
 
 ##############################################################################
 # Environment variables
@@ -32,18 +32,6 @@ RUN apt-get install -y nano wget vim git
 # build dependencies for mariadb and image bindings
 RUN apt-get install -y python-imaging python-dev mariadb-server libssl-dev libmariadb-client-lgpl-dev
 
-
-##############################################################################
-# Nginx conf setting
-#############################################################################
-#RUN echo "daemon off;" >> /etc/nginx/nginx.conf
-#RUN mkdir /usr/share/nginx/www
-#RUN curl -o /usr/share/nginx/www/master.zip -L https://codeload.github.com/gabrielecirulli/2048/zip/master
-#RUN cd /usr/share/nginx/www/ && unzip master.zip && mv 2048-master/* . && rm -rf 2048-master master.zip
-
-#EXPOSE 80
-
-#CMD ["/usr/sbin/nginx", "-c", "/etc/nginx/nginx.conf"]
 
 ##############################################################################
 # setup startup script for gunicorn WSGI service
