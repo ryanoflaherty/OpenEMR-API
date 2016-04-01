@@ -15,7 +15,7 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')
-STATIC_PATH = os.path.join(BASE_DIR, 'static')
+STATIC_PATH = os.path.join(BASE_DIR, 'static_files')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -88,7 +88,7 @@ DATABASES = {
         'NAME': 'openemr',
         'USER': 'django',
         'PASSWORD': 'django',
-        'HOST': '52.36.163.49', # remotehcs.com / 52.36.163.49
+        'HOST': 'localhost', # remotehcs.com / 52.36.163.49
         'PORT': '3306',
     }
 }
@@ -135,6 +135,7 @@ STATICFILES_DIRS = (
     STATIC_PATH,
 )
 #STATIC_ROOT = '/your/url/here'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # REST Framework
 REST_FRAMEWORK = {
