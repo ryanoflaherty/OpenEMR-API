@@ -15,8 +15,7 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')
-STATIC_PATH = os.path.join(BASE_DIR, 'static_files')
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_PATH = os.path.join(BASE_DIR, 'static')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -25,9 +24,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 SECRET_KEY = '4uo)-l0f7^taz=9@qc2(1ui=cqzx6o_jm+swrtrnw&m!jkax_%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -143,7 +142,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
 	),
 	'DEFAULT_PERMISSION_CLASSES': (
-		'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+		'rest_framework.permissions.AllowAny', # IsAuthenticatedOrReadOnly
 	),
 	'PAGE_SIZE': 5,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
