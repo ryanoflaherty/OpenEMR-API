@@ -5,6 +5,7 @@ from rest_framework.fields import SkipField
 from collections import OrderedDict
 
 
+# Helper Class
 class NonNullSerializer(serializers.ModelSerializer):
     """
     Use this to prevent null response fields from being serialized
@@ -23,14 +24,14 @@ class NonNullSerializer(serializers.ModelSerializer):
                 continue
 
             if attribute is not None:
-                represenation = field.to_representation(attribute)
-                if represenation is None:
+                represention = field.to_representation(attribute)
+                if represention is None:
                     # Do not seralize empty objects
                     continue
-                if isinstance(represenation, list) and not represenation:
+                if isinstance(represention, list) and not represention:
                    # Do not serialize empty lists
                    continue
-                ret[field.field_name] = represenation
+                ret[field.field_name] = represention
 
         return ret
 
