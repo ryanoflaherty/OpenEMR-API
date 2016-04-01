@@ -134,6 +134,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     STATIC_PATH,
 )
+#STATIC_ROOT = '/your/url/here'
 
 # REST Framework
 REST_FRAMEWORK = {
