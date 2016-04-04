@@ -16,6 +16,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')
 STATIC_PATH = os.path.join(BASE_DIR, 'static_files')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -134,8 +135,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     STATIC_PATH,
 )
-#STATIC_ROOT = '/your/url/here'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # REST Framework
 REST_FRAMEWORK = {
@@ -144,7 +143,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
 	),
 	'DEFAULT_PERMISSION_CLASSES': (
-		'rest_framework.permissions.AllowAny', # IsAuthenticatedOrReadOnly
+		'rest_framework.permissions.IsAuthenticatedOrReadOnly',
 	),
 	'PAGE_SIZE': 5,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
