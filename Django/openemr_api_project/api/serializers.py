@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 
 # Helper Class
-class NonNullSerializer(serializers.ModelSerializer):
+class NonNullSerializer(serializers.Serializer):
     """
     Use this to prevent null response fields from being serialized
     """
@@ -44,42 +44,77 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('url', 'username', 'email', 'groups')
 
 
-class GroupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Group
-        fields = ('url', 'name')
-
-
 # Facility, FormEncounter, FormRos, FormVitals, FormReviewofs
 #####################################################
-class FacilitySerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(read_only=True)
+class FacilitySerializer(serializers.Serializer):
+    #id = serializers.PrimaryKeyRelatedField(read_only=True)
+    name = serializers.CharField(max_length=255)
+    phone = serializers.CharField(max_length=30)
+    fax = serializers.CharField(max_length=30)
+    email = serializers.CharField(max_length=255)
+    street = serializers.CharField(max_length=255)
+    city = serializers.CharField(max_length=255)
+    state = serializers.CharField(max_length=50)
+    country_code = serializers.CharField(max_length=10)
+    facility_npi = serializers.CharField(max_length=15)
+    service_location = serializers.IntegerField()
+    billing_location = serializers.IntegerField()
+    color = serializers.CharField(max_length=7)
+
     class Meta:
         model = Facility
 
 
-class FormEncounterSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(read_only=True)
-    facility = FacilitySerializer(source='facility_id')
+class FormEncounterSerializer(serializers.Serializer):
+    #id = serializers.PrimaryKeyRelatedField(read_only=True)
+    facility_id = serializers.PrimaryKeyRelatedField(read_only=True) # FacilitySerializer()
+    date = serializers.DateTimeField()
+    encounter = serializers.IntegerField()
 
     class Meta:
         model = FormEncounter
 
 
-class FormRosSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(read_only=True)
+class FormRosSerializer(serializers.Serializer):
+    #id = serializers.PrimaryKeyRelatedField(read_only=True)
+    date = serializers.DateTimeField()
+    p = serializers.CharField(max_length=3)
+    n_numbness = serializers.CharField(max_length=3)
+    n_weakness = serializers.CharField(max_length=3)
+    diabetes = serializers.CharField(max_length=3)
+
     class Meta:
         model = FormRos
 
 
-class FormVitalsSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(read_only=True)
+class FormVitalsSerializer(serializers.Serializer):
+    #id = serializers.PrimaryKeyRelatedField(read_only=True)
+    date = serializers.DateTimeField()
+    user = serializers.CharField(max_length=255)
+    groupname = serializers.CharField(max_length=255)
+    pulse = serializers.FloatField()
+    bps = serializers.CharField(max_length=40)
+    bpd = serializers.CharField(max_length=40)
+    weight = serializers.FloatField()
+    height = serializers.FloatField()
+    bmi = serializers.FloatField()
+    waist_circ = serializers.FloatField()
+    activity = serializers.FloatField()
+    temperature = serializers.FloatField()
+    glucose = serializers.FloatField()
+
     class Meta:
         model = FormVitals
 
 
-class FormReviewofsSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(read_only=True)
+class FormReviewofsSerializer(serializers.Serializer):
+    #id = serializers.PrimaryKeyRelatedField(read_only=True)
+    date = serializers.DateTimeField()
+    dry_mouth = serializers.CharField(max_length=5)
+    high_blood_pressure = serializers.CharField(max_length=5)
+    user = serializers.CharField(max_length=255)
+    groupname = serializers.CharField(max_length=255)
+
     class Meta:
         model = FormReviewofs
 
@@ -87,29 +122,26 @@ class FormReviewofsSerializer(serializers.ModelSerializer):
 # Forms, List, HistoryData, PatientData
 ##################################################
 class FormsSerializer(NonNullSerializer):
-    id = serializers.IntegerField(read_only=True)
+    #id = serializers.IntegerField(read_only=True)
     date = serializers.DateTimeField()
     encounter = serializers.IntegerField()
     form_name = serializers.CharField()
-    pid = serializers.IntegerField()
     user = serializers.CharField(max_length=255)
     deleted = serializers.IntegerField(default=0)
 
     # Inherited
-    form_encounter = FormRosSerializer()
+    form_encounter = FormEncounterSerializer()
     form_ros = FormRosSerializer()
     form_vitals = FormVitalsSerializer()
     form_reviewofs = FormReviewofsSerializer()
 
     class Meta:
         model = Forms
-        #fields = ('id', 'date', 'encounter', 'form_name', 'pid', 'user', 'deleted', 'form_encounter', 'form_ros', 'form_reviewofs', 'form_vitals')
+        exclude = ('med_his', 'form_id', 'id')
 
 
-class HistoryDataSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
+class HistoryDataSerializer(serializers.Serializer):
     date = serializers.DateTimeField()
-    pid = serializers.IntegerField()
     tobacco = serializers.CharField()
     relatives_diabetes = serializers.CharField()
     relatives_high_blood_pressure = serializers.CharField()
@@ -118,10 +150,15 @@ class HistoryDataSerializer(serializers.ModelSerializer):
         model = HistoryData
 
 
-class ListsSerializer(serializers.ModelSerializer):
+class ListsSerializer(serializers.Serializer):
+    user = serializers.CharField(max_length=255)
+    date = serializers.DateTimeField()
+    type = serializers.CharField(max_length=255)
+    title = serializers.CharField(max_length=255)
 
     class Meta:
         model = Lists
+        exclude = ('med_his',)
 
 
 class PatientDataSerializer(serializers.ModelSerializer):
@@ -145,34 +182,41 @@ class PatientDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PatientData
-        exclude = ('street', 'ss', 'pid')
+        exclude = ('street', 'ss', 'pid',)
 
 
 # MedicalHistory
 ###########################################################
-class MedicalHistorySerializer(serializers.ModelSerializer):
-    pid = serializers.IntegerField()
+class ListMedicalHistorySerializer(serializers.Serializer):
     history_data = serializers.SerializerMethodField(method_name='hsearch_by_pid') # HistoryDataSerializer(many=True)
-    #patient_data = PatientDataSerializer()
-    forms = serializers.SerializerMethodField(method_name='fsearch_by_pid') # FormsSerializer(many=True)
-    lists = serializers.SerializerMethodField(method_name='lsearch_by_pid') # ListsSerializer(many=True)
+    #forms = serializers.SerializerMethodField(method_name='fsearch_by_pid') # FormsSerializer(many=True)
+    #lists = serializers.SerializerMethodField(method_name='lsearch_by_pid') # ListsSerializer(many=True)
 
     class Meta:
         model = MedicalHistory
-        #depth = 5
-        exclude = ('id',)
 
-    def hsearch_by_pid(self, MedicalHistory):
-        visit = HistoryData.objects.filter(pid=MedicalHistory.pid)
-        serializer = HistoryDataSerializer(instance=visit, many=True)
+    def hsearch_by_pid(self, instance):
+        visit = HistoryData.objects.filter(pid=instance.pid).latest('date')
+        serializer = HistoryDataSerializer(instance=visit)
         return serializer.data
 
-    def fsearch_by_pid(self, MedicalHistory):
-        visit = Forms.objects.filter(pid=MedicalHistory.pid)
+    def fsearch_by_pid(self, instance):
+        visit = Forms.objects.filter(pid=instance.pid)
         serializer = FormsSerializer(instance=visit, many=True)
         return serializer.data
 
-    def lsearch_by_pid(self, MedicalHistory):
-        visit = Lists.objects.filter(pid=MedicalHistory.pid)
+    def lsearch_by_pid(self, instance):
+        visit = Lists.objects.filter(pid=instance.pid)
         serializer = ListsSerializer(instance=visit, many=True)
         return serializer.data
+
+
+class CreateUpdateMedicalHistorySerializer(serializers.ModelSerializer):
+    patient_data = PatientDataSerializer()
+    history_data = HistoryDataSerializer(many=True)
+    forms = FormsSerializer(many=True)
+    lists = ListsSerializer(many=True)
+
+    class Meta:
+        model = MedicalHistory
+        exclude = ('pid',)

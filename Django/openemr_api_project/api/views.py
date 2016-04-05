@@ -1,7 +1,7 @@
-from django.contrib.auth.models import User, Group
-from models import PatientData, HistoryData, MedicalHistory, Forms, FormEncounter
+from django.contrib.auth.models import User
+from models import PatientData, MedicalHistory, Forms, FormEncounter
 from rest_framework import viewsets
-from serializers import UserSerializer, GroupSerializer, PatientDataSerializer, HistoryDataSerializer, MedicalHistorySerializer, FormsSerializer, FormEncounterSerializer
+from serializers import UserSerializer, PatientDataSerializer, ListMedicalHistorySerializer, CreateUpdateMedicalHistorySerializer, FormsSerializer, FormEncounterSerializer
 from django.shortcuts import render_to_response
 from rest_framework import filters, generics
 from rest_framework.decorators import api_view
@@ -22,31 +22,18 @@ def api_root(request, format=None):
 	This view constructs the API root for browsable API.
 	"""
 	return Response({
-		'records': reverse('medical-record-create-update', request=request, format=format),
+		'records/': reverse('medical-record-create-update', request=request, format=format),
 		'records/patient-data': reverse('patient-data-list', request=request, format=format),
-		'records/{pubpid}/visits': reverse('visits-list', request=request, format=format, kwargs={'pubpid': '123'}),
-		'records/{pid}/history-data': reverse('history-data-list', request=request, format=format, kwargs={'pid':1}),
+		'records/{pubpid}/visits': reverse('visits-list', request=request, format=format, kwargs={'pubpid': '28005573'}),
 		#'users': reverse('users', request=request, format=format),
-		#'groups': reverse('groups', request=request, format=format),
 	})
-
-
-class HistoryDataList(generics.ListAPIView):
-	"""
-	This view allow the user to use .list() or .retrieve() for history data based on the users pid.
-	"""
-	serializer_class = HistoryDataSerializer
-
-	def get_queryset(self):
-		pid = self.kwargs['pid']
-		return HistoryData.objects.filter(pid=pid)
 
 
 class VisitsHistoryList(generics.ListAPIView):
 	"""
 	This view allow the user to use .list() or .retrieve() for patient visits data based on the users pubpid.
 	"""
-	serializer_class = MedicalHistorySerializer
+	serializer_class = ListMedicalHistorySerializer
 
 	def get_queryset(self):
 		public_pid = self.kwargs['pubpid']
@@ -63,12 +50,12 @@ class PatientDataList(generics.ListAPIView):
 	filter_fields = ('pid', 'pubpid', 'ss', 'fname', 'lname', 'mname', 'dob', 'sex', 'status', 'email', 'street', 'postal_code', 'city', 'state', 'country_code')
 
 
-class CreateUpdateMedicalRecord(generics.ListCreateAPIView, generics.UpdateAPIView):
+class CreateUpdateMedicalRecord(generics.CreateAPIView, generics.UpdateAPIView):
 	"""
 	This view allow the user to view and modify MedicalHistory records.
 	"""
 	queryset = MedicalHistory.objects.all()
-	serializer_class = MedicalHistorySerializer
+	serializer_class = CreateUpdateMedicalHistorySerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -77,14 +64,6 @@ class UserViewSet(viewsets.ModelViewSet):
 	"""
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
-
-
-class GroupViewSet(viewsets.ModelViewSet):
-	"""
-	This view allow the user to view and modify groups.
-	"""
-	queryset = Group.objects.all()
-	serializer_class = GroupSerializer
 
 
 class FormsList(generics.ListAPIView):

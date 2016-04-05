@@ -15,8 +15,6 @@ Store a list of all medical objects associated with a patient data object
 class MedicalHistory(models.Model):
     id = models.AutoField(primary_key=True)
     pid = models.BigIntegerField(unique=True)
-    lat = models.FloatField(verbose_name='Latitude', blank=True, null=True)
-    longitude = models.FloatField(verbose_name='Longitude', db_column='long', blank=True, null=True)
 
     def __unicode__(self):
         return str(self.id)
@@ -179,6 +177,7 @@ class FormVitals(models.Model):
     waist_circ = models.FloatField(blank=True, null=True)
     activity = models.IntegerField(blank=True, null=True)
     temperature = models.FloatField(blank=True, null=True)
+    glucose = models.FloatField(blank=True, null=True)
 
     def __unicode__(self):
        return str(self.pid)

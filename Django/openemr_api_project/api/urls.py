@@ -17,10 +17,8 @@ API Endpoints for app functionality
 """
 urlpatterns += [
     url(r'^records/$', views.CreateUpdateMedicalRecord.as_view(), name='medical-record-create-update'), # Create a new Medical History object
-    url(r'^records/(?P<pid>[0-9]+)/history-data', views.HistoryDataList.as_view(), name='history-data-list'),  # Return a list of visits based on pid
     url(r'^records/(?P<pubpid>[0-9]+)/visits', views.VisitsHistoryList.as_view(), name='visits-list'),  # Return a list of visits based on pid
     url(r'^records/patient-data', views.PatientDataList.as_view(), name='patient-data-list'),   # Return a filtered list of Patient Data objects
     url(r'^test', views.FormsList.as_view()),
     #url(r'^users', views.UserViewSet.as_view({'get': 'list', 'post': 'create'}), name='users'),
-    #url(r'^groups', views.GroupViewSet.as_view({'get': 'list'}), name='groups'),
 ]
