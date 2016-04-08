@@ -7,6 +7,8 @@ from rest_framework import filters, generics
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
+from rest_framework import status
+from django.core.cache import cache
 
 
 def index(request):
@@ -37,17 +39,58 @@ class VisitsHistoryList(generics.ListAPIView):
 
 	def get_queryset(self):
 		public_pid = self.kwargs['pubpid']
-		return MedicalHistory.objects.filter(patient_data__pubpid=public_pid)
+		pd_cache_query = str("PD-" + public_pid)
+		cached = cache.get(pd_cache_query)
+		if cached:
+			return MedicalHistory.objects.filter(pid=int(cached[0].pid))
+		else:
+			queryset = MedicalHistory.objects.filter(patient_data__pubpid=public_pid)
+			cache.set(pd_cache_query, queryset, 3600)
+			return queryset
+
+
+
+@api_view(['GET'])
+def visits_list(request, pubpid, format=None):
+	"""
+	Function based view to return flat representation of patient visits.
+	:param request: HTTP Request
+	:param pubpid: Public patient id, used to perform queries
+	:param format: .json or .api
+	:return: dict of patients visit history
+	"""
+
+	#try:
+	#patient = PatientData.objects.all()
+
+	#if request.method == 'GET':
+
+	return Response(status=status.HTTP_200_OK)
 
 
 class PatientDataList(generics.ListAPIView):
 	"""
 	This view allow the user to use .list() or .retrieve() for patient data, as well as search by all fields.
+
+	Since this is the first class accessed, cache Visits when accessed
 	"""
 	serializer_class = PatientDataSerializer
-	queryset = PatientData.objects.all()
 	filter_backends = (filters.DjangoFilterBackend,)
 	filter_fields = ('pid', 'pubpid', 'ss', 'fname', 'lname', 'mname', 'dob', 'sex', 'status', 'email', 'street', 'postal_code', 'city', 'state', 'country_code')
+
+	def get_queryset(self):
+		pubpid = self.request.query_params.get('pubpid', None)
+		queryset = PatientData.objects.all()
+
+		if pubpid is not None:
+			cache_query = str("PD-" + pubpid)
+			cached = cache.get(cache_query)
+			if not cached:
+				queryset = queryset.filter(pubpid=pubpid)
+				cache.set(cache_query, queryset, 3600)
+			else:
+				queryset = cached
+		return queryset
 
 
 class CreateUpdateMedicalRecord(generics.CreateAPIView, generics.UpdateAPIView):

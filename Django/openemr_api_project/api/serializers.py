@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from models import PatientData, HistoryData, MedicalHistory, FormEncounter, Forms, Lists, Facility, FormRos, FormReviewofs, FormVitals
+from models import PatientData, HistoryData, MedicalHistory, FormEncounter, Forms, Lists, Facility, FormRos, FormReviewofs, FormVitals, Visit
 from rest_framework.fields import SkipField
 from collections import OrderedDict
 
@@ -119,7 +119,7 @@ class FormReviewofsSerializer(serializers.Serializer):
         model = FormReviewofs
 
 
-# Forms, List, HistoryData, PatientData
+# Forms, List, HistoryData, PatientData, Visits
 ##################################################
 class FormsSerializer(NonNullSerializer):
     #id = serializers.IntegerField(read_only=True)
@@ -129,11 +129,27 @@ class FormsSerializer(NonNullSerializer):
     user = serializers.CharField(max_length=255)
     deleted = serializers.IntegerField(default=0)
 
+    # Vitals
+    glucose = serializers.FloatField(source='form_vitals.glucose')
+    pulse = serializers.FloatField(source='form_vitals.pulse')
+    bps = serializers.CharField(source='form_vitals.bps')
+    bpd = serializers.CharField(source='form_vitals.bpd')
+    weight = serializers.FloatField(source='form_vitals.weight')
+    height = serializers.FloatField(source='form_vitals.height')
+    bmi = serializers.FloatField(source='form_vitals.bmi')
+    # Ros
+    pregnant = serializers.CharField(source='form_ros.p')
+    numbness = serializers.CharField(source='form_ros.n_numbness')
+    dizziness = serializers.CharField(source='form_ros.n_weakness')
+    diabetes = serializers.CharField(source='form_ros.diabetes')
+    #Reviewofs
+    dry_mouth = serializers.CharField(source='form_reviewofs.dry_mouth')
+    high_blood_pressure = serializers.CharField(source='form_reviewofs.high_blood_pressure')
     # Inherited
-    form_encounter = FormEncounterSerializer()
-    form_ros = FormRosSerializer()
-    form_vitals = FormVitalsSerializer()
-    form_reviewofs = FormReviewofsSerializer()
+    #form_encounter = FormEncounterSerializer()
+    #form_ros = FormRosSerializer()
+    #form_vitals = FormVitalsSerializer()
+    #form_reviewofs = FormReviewofsSerializer()
 
     class Meta:
         model = Forms
@@ -185,12 +201,38 @@ class PatientDataSerializer(serializers.ModelSerializer):
         exclude = ('street', 'ss', 'pid',)
 
 
+class VisitSerializer(serializers.Serializer):
+    # Encounter
+    encounter = serializers.PrimaryKeyRelatedField(read_only=True)
+    # Vitals
+    glucose = serializers.FloatField(source='form_vitals.glucose')
+    pulse = serializers.FloatField(source='form_vitals.pulse')
+    bps = serializers.CharField(source='form_vitals.bps')
+    bpd = serializers.CharField(source='form_vitals.bpd')
+    weight = serializers.FloatField(source='form_vitals.weight')
+    height = serializers.FloatField(source='form_vitals.height')
+    bmi = serializers.FloatField(source='form_vitals.bmi')
+    # Ros
+    pregnant = serializers.CharField(source='form_ros.p')
+    numbness = serializers.CharField(source='form_ros.n_numbness')
+    dizziness = serializers.CharField(source='form_ros.n_weakness')
+    diabetes = serializers.CharField(source='form_ros.diabetes')
+    #Reviewofs
+    dry_mouth = serializers.CharField(source='form_reviewofs.dry_mouth')
+    high_blood_pressure = serializers.CharField(source='form_reviewofs.high_blood_pressure')
+
+    class Meta:
+        model = Visit
+
+
 # MedicalHistory
 ###########################################################
 class ListMedicalHistorySerializer(serializers.Serializer):
+    id = serializers.IntegerField()
     history_data = serializers.SerializerMethodField(method_name='hsearch_by_pid') # HistoryDataSerializer(many=True)
-    #forms = serializers.SerializerMethodField(method_name='fsearch_by_pid') # FormsSerializer(many=True)
+    forms = serializers.SerializerMethodField(method_name='fsearch_by_pid') # FormsSerializer(many=True)
     #lists = serializers.SerializerMethodField(method_name='lsearch_by_pid') # ListsSerializer(many=True)
+    visits = VisitSerializer(many=True)
 
     class Meta:
         model = MedicalHistory
@@ -200,16 +242,18 @@ class ListMedicalHistorySerializer(serializers.Serializer):
         serializer = HistoryDataSerializer(instance=visit)
         return serializer.data
 
+
     def fsearch_by_pid(self, instance):
         visit = Forms.objects.filter(pid=instance.pid)
         serializer = FormsSerializer(instance=visit, many=True)
         return serializer.data
 
+    """
     def lsearch_by_pid(self, instance):
         visit = Lists.objects.filter(pid=instance.pid)
         serializer = ListsSerializer(instance=visit, many=True)
         return serializer.data
-
+    """
 
 class CreateUpdateMedicalHistorySerializer(serializers.ModelSerializer):
     patient_data = PatientDataSerializer()

@@ -24,7 +24,6 @@ class MedicalHistory(models.Model):
 
 
 class PatientData(models.Model):
-    #pid = models.BigIntegerField(unique=True, primary_key=True)
     pid = models.OneToOneField(MedicalHistory, db_column='pid', to_field='pid', related_name='patient_data', primary_key=True, unique=True)
     pubpid = models.CharField(max_length=255)
     ss = models.CharField(max_length=255)
@@ -74,7 +73,7 @@ class HistoryData(models.Model):
 class Forms(models.Model):
     id = models.AutoField(primary_key=True)
     date = models.DateTimeField(blank=True, null=True)
-    encounter = models.BigIntegerField(blank=True, null=True)
+    encounter = models.BigIntegerField(unique=True, blank=True, null=True)
     form_name = models.TextField(blank=True, null=True)
     form_id = models.BigIntegerField(blank=True, null=True, unique=True)
     pid = models.BigIntegerField(blank=True, null=True)
@@ -151,7 +150,7 @@ class FormEncounter(models.Model):
     pid = models.BigIntegerField(blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
     facility_id = models.ForeignKey(Facility, db_column='facility_id', related_name='facility')
-    encounter = models.BigIntegerField(blank=True, null=True)
+    encounter = models.BigIntegerField(unique=True)
 
     def __unicode__(self):
          return str(self.pid) + ', ' + str(self.encounter)
@@ -219,3 +218,19 @@ class FormRos(models.Model):
     class Meta:
         managed = False
         db_table = 'form_ros'
+
+
+class Visit(models.Model):
+    id = models.AutoField(primary_key=True)
+    encounter = models.OneToOneField(FormEncounter, db_column='encounter', to_field='encounter', related_name='fk_encounter')
+    #form_id = models.ForeignKey(Forms, to_field='form_id', related_name='fk_form_id')
+    form_reviewofs = models.ForeignKey(FormReviewofs, related_name='fk_form_reviewofs')
+    form_vitals = models.ForeignKey(FormVitals, related_name='fk_form_vitals')
+    form_ros = models.ForeignKey(FormRos, related_name='fk_form_ros')
+    med_his = models.ForeignKey(MedicalHistory, related_name='visits')
+
+    def __unicode__(self):
+        return str(self.encounter)
+
+    class Meta:
+        managed = True

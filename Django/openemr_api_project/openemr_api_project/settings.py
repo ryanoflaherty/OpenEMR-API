@@ -24,9 +24,9 @@ STATIC_PATH = os.path.join(BASE_DIR, 'static_files')
 SECRET_KEY = '4uo)-l0f7^taz=9@qc2(1ui=cqzx6o_jm+swrtrnw&m!jkax_%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -90,6 +90,14 @@ DATABASES = {
         'PASSWORD': 'django',
         'HOST': '52.36.163.49', # remotehcs.com / 52.36.163.49
         'PORT': '3306',
+    }
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'remotehcs_cache_table',
+        'TIMEOUT': 3600,
     }
 }
 
