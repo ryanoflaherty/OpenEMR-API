@@ -86,10 +86,7 @@ class PatientDataList(generics.ListAPIView):
 			cache_query = str("PD-" + pubpid)
 			cached = cache.get(cache_query)
 			if not cached:
-				queryset = queryset.filter(pubpid=pubpid)
 				cache.set(cache_query, queryset, 3600)
-			else:
-				queryset = cached
 		return queryset
 
 
