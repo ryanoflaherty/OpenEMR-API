@@ -42,7 +42,6 @@ class PatientData(models.Model):
     country_code = models.CharField(max_length=255, null=True)
     phone_contact = models.CharField(max_length=255, null=True)
     phone_cell = models.CharField(max_length=255, null=True)
-    #med_his = models.OneToOneField(MedicalHistory, related_name='patient_data', primary_key=True, unique=True)
 
     def __unicode__(self):
          return str(self.pid) + ', ' + self.lname
@@ -87,6 +86,7 @@ class Forms(models.Model):
     class Meta:
         managed = False
         db_table = 'forms'
+        ordering = ['encounter']
 
 
 class Lists(models.Model):
@@ -161,7 +161,6 @@ class FormEncounter(models.Model):
 
 
 class FormVitals(models.Model):
-    #id = models.BigIntegerField(primary_key=True)
     id = models.OneToOneField(Forms, db_column='id', to_field='form_id', related_name='form_vitals', primary_key=True)
     date = models.DateTimeField(blank=True, null=True)
     pid = models.BigIntegerField(blank=True, null=True)
