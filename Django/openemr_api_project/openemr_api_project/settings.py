@@ -90,17 +90,20 @@ DATABASES = {
         'PASSWORD': 'django',
         'HOST': '52.36.163.49', # remotehcs.com / 52.36.163.49
         'PORT': '3306',
+    },
+    'cache_local': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'local_cache.sqlite3'),
     }
 }
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'remotehcs_cache_table',
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
         'TIMEOUT': 3600,
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
