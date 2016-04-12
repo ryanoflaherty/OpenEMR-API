@@ -56,7 +56,7 @@ class VisitsHistoryList(generics.ListAPIView):
 
 
 @api_view(['GET'])
-def visits_list(request, pubpid, format=None):
+def list_visits(request, pubpid, format=None):
 	"""
 	Function based view to return flat representation of patient visits.
 	:param request: HTTP Request
@@ -108,6 +108,20 @@ def visits_list(request, pubpid, format=None):
 			'visits': visits,
 		}
 		return Response(serializer)
+
+
+@api_view(['POST'])
+def create_visit(request, format=None):
+	"""
+	This view allow the user to view and modify MedicalHistory records.
+	:param request:
+	:param format:
+	:return:
+	"""
+
+	if request.method == 'POST':
+		print(request.data)
+		return Response({'message': 'success', 'data': request.data})
 
 
 class PatientDataList(generics.ListAPIView):
