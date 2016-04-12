@@ -24,4 +24,8 @@ urlpatterns = [
     url(r'^api/', include('api.urls')),   # Route to all API calls
     url(r'^admin/', admin.site.urls),   # Admin portal
     url(r'^accounts/', include('registration.backends.default.urls')),  # User registration and login/logout
+    url(r'^users/', views.user_management, name='user-management'),
+    url(r'^analytics/', views.analytics, name='analytics'),
+    url(r'^help/$', views.help, name='help'),
+    url(r'^about/$', views.about, name='about'),
 ]

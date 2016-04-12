@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load i18n %}
 
+{% block page_header %}{% endblock page_header %}
+
 {% block content %}
-<p>{% trans "Logged out" %}</p>
+<div class="container" style="padding-top:20px;">
+    <p>{% trans "Log out successful." %}</p>
+</div>
 {% endblock %}

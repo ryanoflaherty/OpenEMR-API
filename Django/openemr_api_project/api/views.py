@@ -3,7 +3,7 @@ from models import PatientData, MedicalHistory, Forms, HistoryData, Visit
 from rest_framework import viewsets
 from serializers import UserSerializer, PatientDataSerializer, ListMedicalHistorySerializer, CreateUpdateMedicalHistorySerializer, FormsSerializer, HistoryDataSerializer, VisitSerializer
 
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from rest_framework import filters, generics
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
@@ -15,7 +15,23 @@ def index(request):
 	"""
 	This view returns the homepage to the user.
 	"""
-	return render_to_response('bootstrap/index.html')
+	return render(request, 'sb-admin-2/index.html')
+
+
+def user_management(request):
+	return render(request, 'sb-admin-2/users.html')
+
+
+def analytics(request):
+	return render(request, 'sb-admin-2/analytics.html')
+
+
+def help(request):
+	return render(request, 'sb-admin-2/help.html')
+
+
+def about(request):
+	return render(request, 'sb-admin-2/about.html')
 
 
 @api_view(['GET'])
@@ -146,7 +162,7 @@ class PatientDataList(generics.ListAPIView):
 			if not pd_cached:
 				cache.set(pd_cache_query, queryset, 3600)
 				for q in queryset:
-					related = MedicalHistory.objects.prefetch_related('forms', 'history_data').filter(pid=q.pid.pid)
+					related = MedicalHistory.objects.filter(pid=q.pid.pid)
 					cache.set('MH-' + str(pubpid), related[0])
 
 		return queryset
