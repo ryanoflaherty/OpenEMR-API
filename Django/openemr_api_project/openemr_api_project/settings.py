@@ -94,10 +94,6 @@ DATABASES = {
         'PASSWORD': 'django',
         'HOST': '52.36.163.49', # remotehcs.com / 52.36.163.49
         'PORT': '3306',
-    },
-    'cache_local': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'local_cache.sqlite3'),
     }
 }
 
@@ -180,4 +176,4 @@ ACCOUNT_ACTIVATION_DAYS = 7
 REGISTRATION_DEFAULT_FROM_EMAIL = "Remote HCS <noreply@remotehcs.com>"
 REGISTRATION_AUTO_LOGIN = True
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/admin'
+LOGIN_REDIRECT_URL = '/'
