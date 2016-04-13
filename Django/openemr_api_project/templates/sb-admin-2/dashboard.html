@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}{{ block.super }} | Dashboard{% endblock %}
-{% block page_title %}Dashboard{% endblock page_title %}
+{% block page_title %}Dashboard <small>Welcome, {{ user.first_name }}</small>{% endblock page_title %}
 
 {% block content %}
 

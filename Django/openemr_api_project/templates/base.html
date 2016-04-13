@@ -77,14 +77,17 @@
                         <li>
                             <a href="/api/"><i class="fa fa-globe fa-fw"></i> Browsable API</a>
                         </li>
+                        <li>
+                            <a href="http://remotehcs.noip.me/openemr"><i class="fa fa-stethoscope fa-fw"></i> OpenEMR</a>
+                        </li>
                         <li class="divider"></li>
                         {% endif %}
                         <li>
-                            <a href="/accounts/password/change"><i class="fa fa-key fa-fw"></i> Change Password</a>
+                            <a href="/accounts/password/change/"><i class="fa fa-key fa-fw"></i> Change Password</a>
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="/accounts/logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                            <a href="/accounts/logout/"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
                         </li>
                     </ul>
                     <!-- /.dropdown-user -->
@@ -119,9 +122,20 @@
                         <li>
                             <a href="/analytics/"><i class="fa fa-bar-chart fa-fw"></i> Analytics</a>
                         </li>
+                        {% if user.is_superuser %}
                         <li>
-                            <a href="/users/"><i class="fa fa-user fa-fw"></i> Users</a>
+                            <a href="#"><i class="fa fa-user fa-fw"></i> Users <span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="/users/overview/">Overview</a>
+                                </li>
+                                <li>
+                                    <a href="/users/manage/">Manage</a>
+                                </li>
+                            </ul>
+                            <!-- /.nav-second-level -->
                         </li>
+                        {% endif %}
                     </ul>
                 </div>
                 <!-- /.sidebar-collapse -->
