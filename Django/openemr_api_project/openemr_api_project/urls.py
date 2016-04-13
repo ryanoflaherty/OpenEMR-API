@@ -24,8 +24,8 @@ urlpatterns = [
     url(r'^remotehcs/', views.index_guest, name='index-guest'), # landing page for visiters
     url(r'^api/', include('api.urls')),   # Route to all API calls
     url(r'^admin/', admin.site.urls),   # Admin portal
-    #url(r'^accounts/', include('registration.backends.default.urls')),  # User registration and login/logout
-    url(r'^users/', views.user_management, name='user-management'),
+    url(r'^users/manage/', views.user_management, name='user-management'),
+    url(r'^users/overview/', views.user_overview, name='user-overview'),
     url(r'^analytics/', views.analytics, name='analytics'),
     url(r'^help/$', views.help, name='help'),
     url(r'^about/$', views.about, name='about'),
@@ -34,5 +34,11 @@ urlpatterns = [
 # Auth URLs
 urlpatterns += [
     url(r'^accounts/login/$', views.login, name='login'),
-    url(r'^accounts/logout/$', views.logout, name='logout')
+    url(r'^accounts/logout/$', views.logout, name='logout'),
+    url(r'^accounts/password_change/$', views.logout, name='change-password'),
+    url(r'^accounts/password_change/done/$', views.logout, name='change-password-done'),
+    url(r'^accounts/password_reset/$', views.logout, name='reset-password'),
+    url(r'^accounts/password_reset/done/$', views.logout, name='reset-password-done'),
+    url(r'^accounts/register/$, views.logout', views.logout, name='register'),
+    url(r'^accounts/register/done/$', views.logout, name='register'),
 ]

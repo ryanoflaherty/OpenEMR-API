@@ -27,6 +27,15 @@ def index(request):
 
 @login_required()
 def user_management(request):
+	if not request.user.is_staff:
+		return render(request, 'sb-admin-2/lack_permissions.html')
+	return render(request, 'sb-admin-2/users.html')
+
+
+@login_required()
+def user_overview(request):
+	if not request.user.is_staff:
+		return render(request, 'sb-admin-2/lack_permissions.html')
 	return render(request, 'sb-admin-2/users.html')
 
 
