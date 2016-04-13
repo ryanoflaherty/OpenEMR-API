@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as login_user, logout as logout_user
 from django.contrib.auth.decorators import login_required
-from forms import LoginForm
+from forms import LoginForm, CrispyPasswordChangeForm
 from models import PatientData, MedicalHistory, Forms, HistoryData, Visit
 from rest_framework import viewsets
 from serializers import UserSerializer, PatientDataSerializer, ListMedicalHistorySerializer, CreateUpdateMedicalHistorySerializer, FormsSerializer, HistoryDataSerializer, VisitSerializer
@@ -11,6 +11,7 @@ from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
 from django.core.cache import cache
+from django.contrib.auth import update_session_auth_hash
 
 
 def index_guest(request):
@@ -53,19 +54,12 @@ def about(request):
 
 
 def login(request):
-
 	if request.method == 'POST':
-		username = request.POST.get('username')
-		password = request.POST.get('password')
-		user = authenticate(username=username, password=password)
-		if user:
-			if user.is_active:
-				login_user(request, user)
-				return render(request, 'sb-admin-2/dashboard.html')
-			else:
-				return render(request, 'sb-admin-2/help.html')
+		form = LoginForm(None, request.POST or None)
+		if form.is_valid():
+			login_user(request, form.get_user())
+			return render(request, 'sb-admin-2/dashboard.html')
 		else:
-			print "Invalid login details: {0}, {1}".format(username, password)
 			return render(request, 'sb-admin-2/about.html')
 	else:
 		login_form = LoginForm()
@@ -76,6 +70,25 @@ def login(request):
 def logout(request):
 	logout_user(request)
 	return render(request, 'sb-admin-2/logout.html')
+
+
+@login_required()
+def password_change(request):
+	if request.method == 'POST':
+		form = CrispyPasswordChangeForm(user=request.user, data=request.POST)
+		if form.is_valid():
+			form.save()
+			update_session_auth_hash(request, form.user)
+			return password_change_done(request)
+
+	else:
+		password_change_form = CrispyPasswordChangeForm(request.user)
+		return render(request, 'sb-admin-2/password_change_form.html', {'password_change_form': password_change_form})
+
+
+@login_required()
+def password_change_done(request):
+	return render(request, 'sb-admin-2/password_change_done.html')
 
 
 @login_required()

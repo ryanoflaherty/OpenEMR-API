@@ -6,3 +6,4 @@ djangorestframework==3.3.2
 MySQL-python==1.2.5
 wheel==0.24.0
 python-memcached==1.57
+django-crispy-forms==1.6.0
