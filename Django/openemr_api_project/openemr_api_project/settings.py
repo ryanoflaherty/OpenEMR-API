@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'registration',
     'django_filters',
+    'crispy_forms',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -143,6 +144,7 @@ STATICFILES_DIRS = (
 )
 #STATIC_ROOT = '/your/url/here'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 # REST Framework
 REST_FRAMEWORK = {
@@ -151,7 +153,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
 	),
 	'DEFAULT_PERMISSION_CLASSES': (
-		'rest_framework.permissions.AllowAny', # IsAuthenticatedOrReadOnly
+		'rest_framework.permissions.IsAuthenticatedOrReadOnly',
 	),
 	'PAGE_SIZE': 5,
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)

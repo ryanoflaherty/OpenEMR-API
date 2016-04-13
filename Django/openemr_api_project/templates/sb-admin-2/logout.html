@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} | Logout{% endblock title %}
+
+{% block page_header %}{% endblock page_header %}
+
+{% block content %}
+<div class="container">
+    <div class="row" style="margin-top:50px;">
+        <div class="col-md-4 col-md-offset-4">
+            <div class="panel-heading">
+                <div class="alert alert-success">
+                    <strong>Success!</strong> User was successfully logged out.
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+            <div class="login-panel panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">See you soon!</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="text-center">
+                        Click <a href="/accounts/login">here</a> to login again.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

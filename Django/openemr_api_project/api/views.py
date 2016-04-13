@@ -1,8 +1,10 @@
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login as login_user, logout as logout_user
+from django.contrib.auth.decorators import login_required
+from forms import LoginForm
 from models import PatientData, MedicalHistory, Forms, HistoryData, Visit
 from rest_framework import viewsets
 from serializers import UserSerializer, PatientDataSerializer, ListMedicalHistorySerializer, CreateUpdateMedicalHistorySerializer, FormsSerializer, HistoryDataSerializer, VisitSerializer
-
 from django.shortcuts import render
 from rest_framework import filters, generics
 from rest_framework.decorators import api_view
@@ -11,17 +13,24 @@ from rest_framework.response import Response
 from django.core.cache import cache
 
 
+def index_guest(request):
+	return render(request, 'sb-admin-2/index.html')
+
+
+@login_required(login_url='/remotehcs', redirect_field_name='')
 def index(request):
 	"""
 	This view returns the homepage to the user.
 	"""
-	return render(request, 'sb-admin-2/index.html')
+	return render(request, 'sb-admin-2/dashboard.html')
 
 
+@login_required()
 def user_management(request):
 	return render(request, 'sb-admin-2/users.html')
 
 
+@login_required()
 def analytics(request):
 	return render(request, 'sb-admin-2/analytics.html')
 
@@ -34,6 +43,33 @@ def about(request):
 	return render(request, 'sb-admin-2/about.html')
 
 
+def login(request):
+
+	if request.method == 'POST':
+		username = request.POST.get('username')
+		password = request.POST.get('password')
+		user = authenticate(username=username, password=password)
+		if user:
+			if user.is_active:
+				login_user(request, user)
+				return render(request, 'sb-admin-2/dashboard.html')
+			else:
+				return render(request, 'sb-admin-2/help.html')
+		else:
+			print "Invalid login details: {0}, {1}".format(username, password)
+			return render(request, 'sb-admin-2/about.html')
+	else:
+		login_form = LoginForm()
+		return render(request, 'sb-admin-2/login.html', {'login_form': login_form})
+
+
+@login_required()
+def logout(request):
+	logout_user(request)
+	return render(request, 'sb-admin-2/logout.html')
+
+
+@login_required()
 @api_view(['GET'])
 def api_root(request, format=None):
 	"""

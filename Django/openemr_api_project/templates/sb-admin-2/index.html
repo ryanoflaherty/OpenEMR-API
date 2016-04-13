@@ -1,7 +1,47 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ block.super }} | Home {% endblock %}
-
+{% block title %}{{ block.super }} | Home{% endblock %}
+{% block page_header %}
+<br>
+<br>
+{% endblock page_header %}
 
 {% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1 text-center">
+            <div class="panel" style="padding-bottom: 75px">
+                <h2 class="page-header">Welcome to RemoteHCS Dashboard</h2>
+                <div style="margin: 50px 35px 50px 35px;">
+                    <p>
+                        Thanks for stopping by! If you are an admin and registered with RemoteHCS,
+                        please sign in below.  If you would like to know more about our product,
+                        click <a href="/about">here</a>.
+                    </p>
+                </div>
+                <div class="row">
+                    <div class="col-md-2 col-md-offset-2">
+                        <div>
+                            <i class="fa fa-users fa-5x"></i>
+                        </div>
+                        <div style="margin-top:15px;">
+                            <strong>RemoteHCS Users</strong>
+                            <a href="/accounts/login" style="margin-top: 10px" type="button" class="btn btn-primary btn-md">Log In</a>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-md-offset-4">
+                        <div>
+                            <i class="fa fa-info-circle fa-5x"></i>
+                        </div>
+                        <div style="margin-top:15px;">
+                            <strong>About</strong><br>
+                            <a href="/about" style="margin-top: 10px" type="button" class="btn btn-primary btn-md">More Info</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content %}
