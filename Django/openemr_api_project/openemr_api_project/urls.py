@@ -32,11 +32,12 @@ urlpatterns = [
 ]
 
 # Auth URLs
+# TODO Implement these forms - https://github.com/django/django/blob/master/django/contrib/auth/forms.py
 urlpatterns += [
     url(r'^accounts/login/$', views.login, name='login'),
     url(r'^accounts/logout/$', views.logout, name='logout'),
-    url(r'^accounts/password_change/$', views.logout, name='change-password'),
-    url(r'^accounts/password_change/done/$', views.logout, name='change-password-done'),
+    url(r'^accounts/password_change/$', views.password_change, name='change-password'),
+    url(r'^accounts/password_change/done/$', views.password_change_done, name='change-password-done'),
     url(r'^accounts/password_reset/$', views.logout, name='reset-password'),
     url(r'^accounts/password_reset/done/$', views.logout, name='reset-password-done'),
     url(r'^accounts/register/$, views.logout', views.logout, name='register'),
