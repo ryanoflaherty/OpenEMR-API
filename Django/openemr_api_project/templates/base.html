@@ -14,7 +14,6 @@
 
     <title>{% block title %}RemoteHCS{% endblock title %}</title>
 
-    {% block stylesheets %}
     <!-- Bootstrap Core CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
 
@@ -26,7 +25,8 @@
 
     <!-- Custom CSS -->
     <link href="/static/sb-admin-2/css/sb-admin-2.css" rel="stylesheet">
-    {% endblock stylesheets %}
+
+    {% block stylesheets %}{% endblock stylesheets %}
 
     {% block head %}{% endblock %}
 
@@ -190,9 +190,7 @@
         </footer>
     {% endblock %}
 
-
-
-    {% block javascript %}
+    {% block javascript %}{% endblock javascript %}
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 
@@ -207,6 +205,7 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="/static/sb-admin-2/js/sb-admin-2.js"></script>
-    {% endblock javascript %}
+
+
 </body>
 </html>
