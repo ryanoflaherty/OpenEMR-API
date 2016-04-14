@@ -1,17 +1,19 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as login_user, logout as logout_user
 from django.contrib.auth.decorators import login_required
-from forms import LoginForm, CrispyPasswordChangeForm
+from forms import LoginForm, CrispyPasswordChangeForm, UserCreateForm, UserUpdateForm
 from models import PatientData, MedicalHistory, Forms, HistoryData, Visit
 from rest_framework import viewsets
 from serializers import UserSerializer, PatientDataSerializer, ListMedicalHistorySerializer, CreateUpdateMedicalHistorySerializer, FormsSerializer, HistoryDataSerializer, VisitSerializer
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from rest_framework import filters, generics
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
 from django.core.cache import cache
 from django.contrib.auth import update_session_auth_hash
+from django.views.generic.base import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 def index_guest(request):
@@ -26,18 +28,43 @@ def index(request):
 	return render(request, 'sb-admin-2/dashboard.html')
 
 
-@login_required()
-def user_management(request):
-	if not request.user.is_staff:
-		return render(request, 'sb-admin-2/lack_permissions.html')
-	return render(request, 'sb-admin-2/users.html')
+class UserManagement(LoginRequiredMixin, TemplateView):
+	template_name = 'sb-admin-2/manage_users.html'
+
+	def get(self, request, *args, **kwargs):
+		if not request.user.is_staff:
+			return render(request, 'sb-admin-2/lack_permissions.html')
+
+		if 'username' in request.GET:
+			username = request.GET['username']
+			user = User.objects.get(username=username)
+			form = UserUpdateForm()
+			return render(request, 'sb-admin-2/manage_selected_user.html', {'user_update_form': form, 'selected_user': user})
+		else:
+			return render(request, self.template_name)
+
+	def post(self, request, username):
+		if not request.user.is_staff:
+			return render(request, 'sb-admin-2/lack_permissions.html')
+
+		form = UserUpdateForm()
+		if form.is_valid():
+			form.save()
+			request.session["temp_user"] = {
+				'username': request.POST["username"],
+				'new': False,
+			}
+			return redirect('/accounts/register/done/')
+		else:
+			return render(request, self.template_name, {'user_create_form': form})
 
 
 @login_required()
 def user_overview(request):
 	if not request.user.is_staff:
 		return render(request, 'sb-admin-2/lack_permissions.html')
-	return render(request, 'sb-admin-2/users.html')
+	users = User.objects.all()
+	return render(request, 'sb-admin-2/users.html', {'users': users})
 
 
 @login_required()
@@ -53,17 +80,20 @@ def about(request):
 	return render(request, 'sb-admin-2/about.html')
 
 
-def login(request):
-	if request.method == 'POST':
+class Login(TemplateView):
+	template_name = 'sb-admin-2/login.html'
+
+	def get(self, request, *args, **kwargs):
+		login_form = LoginForm()
+		return render(request, self.template_name, {'login_form': login_form})
+
+	def post(self, request):
 		form = LoginForm(None, request.POST or None)
 		if form.is_valid():
 			login_user(request, form.get_user())
-			return render(request, 'sb-admin-2/dashboard.html')
+			return redirect('index', permanent=True)
 		else:
-			return render(request, 'sb-admin-2/about.html')
-	else:
-		login_form = LoginForm()
-		return render(request, 'sb-admin-2/login.html', {'login_form': login_form})
+			return render(request, self.template_name, {'login_form': form})
 
 
 @login_required()
@@ -72,23 +102,65 @@ def logout(request):
 	return render(request, 'sb-admin-2/logout.html')
 
 
-@login_required()
-def password_change(request):
-	if request.method == 'POST':
+class PasswordChange(LoginRequiredMixin, TemplateView):
+	template_name = 'sb-admin-2/password_change_form.html'
+
+	def get(self, request, *args, **kwargs):
+		password_change_form = CrispyPasswordChangeForm(request.user)
+		return render(request, self.template_name, {'password_change_form': password_change_form})
+
+	def post(self, request):
 		form = CrispyPasswordChangeForm(user=request.user, data=request.POST)
 		if form.is_valid():
 			form.save()
 			update_session_auth_hash(request, form.user)
-			return password_change_done(request)
-
-	else:
-		password_change_form = CrispyPasswordChangeForm(request.user)
-		return render(request, 'sb-admin-2/password_change_form.html', {'password_change_form': password_change_form})
+			return redirect('/accounts/password_reset/done/')
+		else:
+			return render(request, self.template_name, {'password_change_form': form})
 
 
 @login_required()
 def password_change_done(request):
 	return render(request, 'sb-admin-2/password_change_done.html')
+
+
+class CreateUser(LoginRequiredMixin, TemplateView):
+	template_name = 'sb-admin-2/registration_form.html'
+
+	def get(self, request, *args, **kwargs):
+		if not request.user.is_staff:
+			return render(request, 'sb-admin-2/lack_permissions.html')
+		else:
+			form = UserCreateForm()
+			return render(request, self.template_name, {'user_create_form': form})
+
+	def post(self, request):
+		form = UserCreateForm(request.POST)
+		if form.is_valid():
+			form.save()
+			request.session["temp_user"] = {
+				'username': request.POST["username"],
+				'new': True,
+			}
+			return redirect('/accounts/register/done/')
+		else:
+			return render(request, self.template_name, {'user_create_form': form})
+
+
+@login_required()
+def user_create_done(request):
+	new_user = request.session["temp_user"]["username"]
+	is_new = request.session["temp_user"]["new"]
+
+	if not request.user.is_staff:
+		return render(request, 'sb-admin-2/lack_permissions.html')
+
+	if new_user:
+		request.session["temp_user"] = ""
+		user = User.objects.get(username=new_user)
+		return render(request, 'sb-admin-2/registration_complete.html', {'new_user': user, 'is_new': is_new})
+	else:
+		return redirect('/users/overview/')
 
 
 @login_required()
