@@ -133,7 +133,7 @@ class UserUpdateForm(forms.Form):
         self.helper.form_tag = False
         self.helper.form_class = 'form-horizontal'
         self.helper.label_class = 'col-md-2'
-        self.helper.field_class = 'col-md-8'
+        self.helper.field_class = 'col-md-9'
         self.helper.form_id = "login-form"
         self.helper.form_method = "post"
         self.helper.form_action = "./"

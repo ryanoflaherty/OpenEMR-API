@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as login_user, logout as logout_user
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.admin.views.decorators import staff_member_required
 from forms import LoginForm, CrispyPasswordChangeForm, UserCreateForm, UserUpdateForm
 from models import PatientData, MedicalHistory, Forms, HistoryData, Visit
 from rest_framework import viewsets
@@ -13,79 +14,83 @@ from rest_framework.response import Response
 from django.core.cache import cache
 from django.contrib.auth import update_session_auth_hash
 from django.views.generic.base import TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from braces.views import LoginRequiredMixin, StaffuserRequiredMixin
+from django.core.exceptions import ValidationError
 
 
+# Templates
+##########################################################
+templates = {
+	'home': 'sb-admin-2/index.html',
+	'help': 'sb-admin-2/help.html',
+	'about': 'sb-admin-2/about.html',
+	'login': 'sb-admin-2/login.html',
+	'logout': 'sb-admin-2/logout.html',
+	'analytics': 'sb-admin-2/analytics.html',
+	'dashboard': 'sb-admin-2/dashboard.html',
+	'lack_permissions': 'sb-admin-2/lack_permissions.html',
+	'manage_user': 'sb-admin-2/manage_selected_user.html',
+	'users': 'sb-admin-2/users.html',
+	'password_change_form': 'sb-admin-2/password_change_form.html',
+	'password_change_done': 'sb-admin-2/password_change_done.html',
+	'register_user': 'sb-admin-2/registration_form.html',
+	'registration_complete': 'sb-admin-2/registration_complete.html',
+	'delete': 'sb-admin-2/delete.html',
+	'user_deleted': 'sb-admin-2/user_deleted.html',
+}
+
+
+# Public Views (Anyone can view)
+##########################################################
 def index_guest(request):
-	return render(request, 'sb-admin-2/index.html')
-
-
-@login_required(login_url='/remotehcs', redirect_field_name='')
-def index(request):
 	"""
-	This view returns the homepage to the user.
+	Landing page for unauthorized guests.
 	"""
-	return render(request, 'sb-admin-2/dashboard.html')
-
-
-class UserManagement(LoginRequiredMixin, TemplateView):
-	template_name = 'sb-admin-2/manage_users.html'
-
-	def get(self, request, *args, **kwargs):
-		if not request.user.is_staff:
-			return render(request, 'sb-admin-2/lack_permissions.html')
-
-		if 'username' in request.GET:
-			username = request.GET['username']
-			user = User.objects.get(username=username)
-			form = UserUpdateForm()
-			return render(request, 'sb-admin-2/manage_selected_user.html', {'user_update_form': form, 'selected_user': user})
-		else:
-			return render(request, self.template_name)
-
-	def post(self, request, username):
-		if not request.user.is_staff:
-			return render(request, 'sb-admin-2/lack_permissions.html')
-
-		form = UserUpdateForm()
-		if form.is_valid():
-			form.save()
-			request.session["temp_user"] = {
-				'username': request.POST["username"],
-				'new': False,
-			}
-			return redirect('/accounts/register/done/')
-		else:
-			return render(request, self.template_name, {'user_create_form': form})
-
-
-@login_required()
-def user_overview(request):
-	if not request.user.is_staff:
-		return render(request, 'sb-admin-2/lack_permissions.html')
-	users = User.objects.all()
-	return render(request, 'sb-admin-2/users.html', {'users': users})
-
-
-@login_required()
-def analytics(request):
-	return render(request, 'sb-admin-2/analytics.html')
+	template_name = templates['home']
+	return render(request, template_name)
 
 
 def help(request):
-	return render(request, 'sb-admin-2/help.html')
+	"""
+	Help page.
+	"""
+	template_name = templates['help']
+	return render(request, template_name)
 
 
 def about(request):
-	return render(request, 'sb-admin-2/about.html')
+	"""
+	About page.
+	"""
+	template_name = templates['about']
+	return render(request, template_name)
+
+
+def unauthorized(request=None):
+	"""
+	Alert user that they lack the appropriate permissions.
+	"""
+	template_name = templates['lack_permissions']
+	return render(request, template_name)
 
 
 class Login(TemplateView):
-	template_name = 'sb-admin-2/login.html'
+	"""
+	Template view that handles GET and POST requests to log a user in.  This class does not require authentication to
+	access.
+
+	get(): Returns the login form to the user if they aren't signed in. Otherwise they are redirected to the Dashboard.
+	post(): Validates user input against LoginForm().  If there are no errors, log the user in.  Otherwise return the
+			form back to the user with validation errors highlighted.
+	"""
+	template_name = templates['login']
 
 	def get(self, request, *args, **kwargs):
-		login_form = LoginForm()
-		return render(request, self.template_name, {'login_form': login_form})
+		if not request.user.is_authenticated():
+			login_form = LoginForm()
+			return render(request, self.template_name, {'login_form': login_form})
+		else:
+			return redirect('index')
 
 	def post(self, request):
 		form = LoginForm(None, request.POST or None)
@@ -96,14 +101,42 @@ class Login(TemplateView):
 			return render(request, self.template_name, {'login_form': form})
 
 
+# Views available to any logged in user
+##########################################################
+@login_required(login_url='/remotehcs', redirect_field_name='')
+def index(request):
+	"""
+	This view returns the dashboard to an authenticated user.  The @login_required decorator will send visitors to the
+	visitor homepage
+	"""
+	template_name = templates['dashboard']
+	return render(request, template_name)
+
+
+@login_required()
+def analytics(request):
+	"""
+	Analytics page with useful data and statistics for the users.
+	"""
+	template_name = templates['analytics']
+	return render(request, template_name)
+
+
 @login_required()
 def logout(request):
+	"""
+	Logout the active user.
+	"""
+	template_name = templates['logout']
 	logout_user(request)
-	return render(request, 'sb-admin-2/logout.html')
+	return render(request, template_name)
 
 
 class PasswordChange(LoginRequiredMixin, TemplateView):
-	template_name = 'sb-admin-2/password_change_form.html'
+	"""
+	This view allows users to change their password after they provide their old password.
+	"""
+	template_name = templates['password_change_form']
 
 	def get(self, request, *args, **kwargs):
 		password_change_form = CrispyPasswordChangeForm(request.user)
@@ -121,18 +154,73 @@ class PasswordChange(LoginRequiredMixin, TemplateView):
 
 @login_required()
 def password_change_done(request):
-	return render(request, 'sb-admin-2/password_change_done.html')
+	"""
+	This view lets the user know their password was successfully changed.
+	"""
+	return render(request, templates['password_change_done'])
 
 
-class CreateUser(LoginRequiredMixin, TemplateView):
-	template_name = 'sb-admin-2/registration_form.html'
+# Admin Views
+##########################################################
+class UserManagement(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
+	"""
+	This view is exclusive to admin users and allows them to edit user profiles.
+	"""
+	template_name = templates['manage_user']
+	permission_required = 'request.user.is_staff'
+	raise_exception = True
 
 	def get(self, request, *args, **kwargs):
-		if not request.user.is_staff:
-			return render(request, 'sb-admin-2/lack_permissions.html')
+		if 'username' in request.GET:
+			username = request.GET['username']
+			user = User.objects.get(username=username)
+			form = UserUpdateForm()
+			return render(request, self.template_name, {'user_update_form': form, 'selected_user': user,})
 		else:
-			form = UserCreateForm()
-			return render(request, self.template_name, {'user_create_form': form})
+			return render(request, templates['users'], args)
+
+	def post(self, request):
+		form = UserUpdateForm()
+		if form.is_valid():
+			form.save()
+			request.session["temp_user"] = {
+				'username': request.POST["username"],
+				'new': False,
+			}
+			return redirect('/accounts/register/done/')
+		else:
+			return render(request, self.template_name, {'user_update_form': form})
+
+
+@staff_member_required(login_url='/unauthorized/', redirect_field_name='/accounts/login')
+@login_required()
+def user_overview(request):
+	"""
+	Return a table of users to the admin. Only admin can see this page. Other authenticated users are sent to an error
+	page.
+	"""
+	users = User.objects.all()
+	args = {
+		'users': users,
+	}
+	if 'message' in request.GET:
+		args = {
+			'message': 'The user was successfully deleted!'
+		}
+	return render(request, 'sb-admin-2/users.html', args)
+
+
+class CreateUser(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
+	"""
+	This view allows an admin to provision a new account.
+	"""
+	template_name = templates['register_user']
+	permission_required = 'request.user.is_staff'
+	raise_exception = True
+
+	def get(self, request, *args, **kwargs):
+		form = UserCreateForm()
+		return render(request, self.template_name, {'user_create_form': form})
 
 	def post(self, request):
 		form = UserCreateForm(request.POST)
@@ -147,23 +235,59 @@ class CreateUser(LoginRequiredMixin, TemplateView):
 			return render(request, self.template_name, {'user_create_form': form})
 
 
+@staff_member_required(login_url='/unauthorized/', redirect_field_name='/accounts/login')
 @login_required()
 def user_create_done(request):
+	"""
+	This view provides the admin with a success screen when they update/create a user.
+	"""
 	new_user = request.session["temp_user"]["username"]
 	is_new = request.session["temp_user"]["new"]
-
-	if not request.user.is_staff:
-		return render(request, 'sb-admin-2/lack_permissions.html')
 
 	if new_user:
 		request.session["temp_user"] = ""
 		user = User.objects.get(username=new_user)
-		return render(request, 'sb-admin-2/registration_complete.html', {'new_user': user, 'is_new': is_new})
+		return render(request, templates['registration_complete'], {'new_user': user, 'is_new': is_new})
 	else:
 		return redirect('/users/overview/')
 
 
+class DeleteUser(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
+	"""
+	This view allows an admin to delete a user account (make inactive, as is Django best practice).
+	"""
+	template_name = templates['users']
+	permission_required = 'request.user.is_staff'
+	raise_exception = True
+
+	def get(self, request, *args, **kwargs):
+		error = []
+
+		if 'username' in request.GET:
+			username = request.GET['username']
+			user = User.objects.get(username=username)
+			user.is_active = False
+			try:
+				user.save()
+				return redirect('/accounts/delete/done/')
+			except ValidationError as e:
+				error.append(e)
+				return render(request, self.template_name, {'errors': error})
+
+		else:
+			error.append("No username found in request.")
+			return render(request, self.template_name, {'error': error})
+
+
+@staff_member_required(login_url='/unauthorized/', redirect_field_name='/accounts/login')
 @login_required()
+def delete_user_done(request=None):
+	message = "success"
+	return redirect('/users/overview?message=' + str(message))
+
+
+# API Views
+##########################################################
 @api_view(['GET'])
 def api_root(request, format=None):
 	"""

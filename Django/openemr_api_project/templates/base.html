@@ -14,6 +14,7 @@
 
     <title>{% block title %}RemoteHCS{% endblock title %}</title>
 
+    {% block stylesheets %}
     <!-- Bootstrap Core CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
 
@@ -25,8 +26,7 @@
 
     <!-- Custom CSS -->
     <link href="/static/sb-admin-2/css/sb-admin-2.css" rel="stylesheet">
-
-    {% block stylesheets %}{% endblock stylesheets %}
+    {% endblock stylesheets %}
 
     {% block head %}{% endblock %}
 
@@ -120,20 +120,11 @@
                             <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                         </li>
                         <li>
-                            <a href="/analytics/"><i class="fa fa-bar-chart fa-fw"></i> Analytics</a>
+                            <a href="/analytics"><i class="fa fa-bar-chart fa-fw"></i> Analytics</a>
                         </li>
-                        {% if user.is_superuser %}
+                        {% if user.is_staff %}
                         <li>
-                            <a href="#"><i class="fa fa-user fa-fw"></i> Users <span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level">
-                                <li>
-                                    <a href="/users/overview/">Overview</a>
-                                </li>
-                                <li>
-                                    <a href="/users/manage/">Manage</a>
-                                </li>
-                            </ul>
-                            <!-- /.nav-second-level -->
+                            <a href="/users/overview"><i class="fa fa-user fa-fw"></i> Users</a>
                         </li>
                         {% endif %}
                     </ul>
@@ -151,7 +142,6 @@
     {% else %}
     <div id="noauth-wrapper">
     {% endif %}
-        <div class="container-fluid">
             {% block page_header %}
                 <div class="row">
                     <div class="col-lg-12">
@@ -163,7 +153,6 @@
                 <!-- /.row -->
             {% endblock page_header %}
             {% block content %}{% endblock content %}
-        </div>
         <!-- /.container-fluid -->
     </div>
     <!-- /#page-wrapper -->
@@ -175,13 +164,13 @@
                 <nav>
                     <ul style="padding-left:0px; margin-top:15px;">
                         <li class="li-nav">
-                            <a class="text-muted" href="/">Home</a>
+                            <a class="text-muted" style="text-decoration:none;" href="/">Home</a>
                         </li>
                         <li class="li-nav">
-                            <a class="text-muted" href="/about">About</a>
+                            <a class="text-muted" style="text-decoration:none;" href="/about">About</a>
                         </li>
                         <li class="li-nav">
-                            <a class="text-muted" href="/help">Help</a>
+                            <a class="text-muted" style="text-decoration:none;"href="/help">Help</a>
                         </li>
                     </ul>
                 </nav>
@@ -190,7 +179,7 @@
         </footer>
     {% endblock %}
 
-    {% block javascript %}{% endblock javascript %}
+    {% block javascript %}
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 
@@ -205,6 +194,7 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="/static/sb-admin-2/js/sb-admin-2.js"></script>
+    {% endblock javascript %}
 
 
 </body>

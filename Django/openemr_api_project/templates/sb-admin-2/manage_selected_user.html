@@ -5,25 +5,118 @@
 {% load crispy_forms_tags %}
 
 
-{% block title %}{{ block.super }} | Manage User {{ selected_user.username }}{% endblock %}
-{% block page_title %}Manage User{% endblock page_title %}
+{% block title %}{{ block.super }} | Manage User{% endblock %}
+{% block page_title %}Manage User <small>{{ selected_user.username }}</small>{% endblock page_title %}
 
 {% block content %}
-<div class="login-panel panel panel-default" style="margin-top:50px;">
-    <div class="panel-heading">
-        <h3 class="panel-title">Update User: <strong>{{ selected_user.username }}</strong></h3>
-    </div>
-    <div class="panel-body">
-        <form id="user-manage-form" class="form-horizontal" action="./" method="POST" novalidate>
-            {% csrf_token %}
-            {% crispy user_update_form %}
-            <div class="form-group">
-                <div class="aab controls col-md-2"></div>
-                <div class="controls col-md-8">
-                    <input type="submit" name="submit" value="Submit" class="btn btn-success">
+<div class="row">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">User Profile</h3>
+        </div>
+        <div class="panel-body" role="tablist">
+            <ul class="nav nav-tabs">
+              <li role="presentation" class="active" ><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a></li>
+              <li role="presentation"><a href="#contact" aria-controls="contact" role="tab" data-toggle="tab">Contact</a></li>
+              <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">Settings</a></li>
+            </ul>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade in active" style="margin-top:25px;" id="profile">
+                    <div class="row">
+                        <div class="col-md-8" style="margin-bottom:20px;">
+                            <div class="col-md-4 col-md-offset-2">
+                                <h3>Profile Tab</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <form id="user-manage-form" class="form-horizontal" action="./" method="POST" novalidate>
+                                {% csrf_token %}
+                                {% crispy user_update_form %}
+                                <div class="form-group">
+                                    <div class="aab controls col-md-2"></div>
+                                    <div class="controls col-md-8">
+                                        <input type="submit" name="submit" value="Submit" class="btn btn-success">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="panel panel-danger">
+                                <div class="panel-heading">
+                                    Deactivate User
+                                </div>
+                                <div class="panel-body">
+                                    <!-- Button trigger modal -->
+                                    {% if selected_user.is_active|yesno:"Yes,No" == "Yes" %}
+                                    <p class="text-muted text-center">Click here to remove the user from RemoteHCS. </p>
+                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" style="display: block; margin: 0 auto;">Deactivate</button>
+                                    {% else %}
+                                    <p class="text-muted text-center">User is currently inactive. </p>
+                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" style="display: block; margin: 0 auto;" disabled>Deactivate</button>
+                                    {% endif %}
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="Confirm" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                    <h4 class="modal-title" id="Confirm">Are you sure?</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    This action cannot be undone and all information regarding the user
+                                                    will be lost.
+
+                                                    To deactivate <strong>{{ selected_user.username }}</strong>, continue below.
+
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                    <a href="/accounts/delete?username={{ selected_user.username }}" type="button" class="btn btn-primary">Continue</a>
+                                                </div>
+                                            </div>
+                                            <!-- /.modal-content -->
+                                        </div>
+                                        <!-- /.modal-dialog -->
+                                    </div>
+                                    <!-- /.modal -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                <div role="tabpanel" class="tab-pane fade" style="margin-top:25px;" id="contact">
+                    <div class="row">
+                        <div class="col-md-10 col-md-offset-1" style="margin-bottom:20px;">
+                            <h3>Contact Tab</h3>
+
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
+                            labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                            laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
+                            voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat
+                            non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" style="margin-top:25px;" id="settings">
+                    <div class="row">
+                        <div class="col-md-10 col-md-offset-1" style="margin-bottom:20px;">
+                            <h3>Settings Tab</h3>
+
+                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
+                            labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                            laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
+                            voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat
+                            non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock content %}
+

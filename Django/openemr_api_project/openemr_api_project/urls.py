@@ -24,11 +24,12 @@ urlpatterns = [
     url(r'^remotehcs/', views.index_guest, name='index-guest'), # landing page for visiters
     url(r'^api/', include('api.urls')),   # Route to all API calls
     url(r'^admin/', admin.site.urls),   # Admin portal
-    url(r'^users/manage', views.UserManagement.as_view(), name='user-management'),
     url(r'^users/overview', views.user_overview, name='user-overview'),
-    url(r'^analytics/', views.analytics, name='analytics'),
+    url(r'^users/manage', views.UserManagement.as_view(), name='user-management'),
+    url(r'^analytics', views.analytics, name='analytics'),
     url(r'^help/$', views.help, name='help'),
     url(r'^about/$', views.about, name='about'),
+    url(r'^unauthorized/$', views.unauthorized, name='unauthorized'),
 ]
 
 # Auth URLs
@@ -41,4 +42,6 @@ urlpatterns += [
     url(r'^accounts/password_reset/done/$', views.logout, name='reset-password-done'),
     url(r'^accounts/register/$', views.CreateUser.as_view(), name='register'),
     url(r'^accounts/register/done/$', views.user_create_done, name='register-done'),
+    url(r'^accounts/delete$', views.DeleteUser.as_view(), name='delete-user'),
+    url(r'^accounts/delete/done/$', views.delete_user_done, name='delete-user-done'),
 ]
