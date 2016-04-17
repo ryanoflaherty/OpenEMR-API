@@ -3,6 +3,7 @@ from rest_framework import serializers
 from models import PatientData, HistoryData, MedicalHistory, FormEncounter, Forms, Lists, Facility, FormRos, FormReviewofs, FormVitals, Visit
 from rest_framework.fields import SkipField
 from collections import OrderedDict
+from django.utils import timezone
 
 
 # Helper Class
@@ -26,7 +27,7 @@ class NonNullSerializer(serializers.Serializer):
             if attribute is not None:
                 represention = field.to_representation(attribute)
                 if represention is None:
-                    # Do not seralize empty objects
+                    # Do not serialize empty objects
                     continue
                 if isinstance(represention, list) and not represention:
                    # Do not serialize empty lists
@@ -121,7 +122,7 @@ class FormReviewofsSerializer(serializers.Serializer):
 
 # Forms, List, HistoryData, PatientData, Visits
 ##################################################
-class FormsSerializer(NonNullSerializer):
+class FormsSerializer(serializers.Serializer):
     #id = serializers.IntegerField(read_only=True)
     date = serializers.DateTimeField()
     encounter = serializers.IntegerField()
@@ -157,13 +158,18 @@ class FormsSerializer(NonNullSerializer):
 
 
 class HistoryDataSerializer(serializers.Serializer):
-    date = serializers.DateTimeField()
+    pid = serializers.IntegerField()
+    date = serializers.DateTimeField(required=False, default=timezone.now())
     tobacco = serializers.CharField()
     relatives_diabetes = serializers.CharField()
     relatives_high_blood_pressure = serializers.CharField()
 
     class Meta:
         model = HistoryData
+
+    def create(self, validated_data):
+        history_data = HistoryData.objects.create(**validated_data)
+        return history_data.pid
 
 
 class ListsSerializer(serializers.Serializer):
@@ -178,27 +184,38 @@ class ListsSerializer(serializers.Serializer):
 
 
 class PatientDataSerializer(serializers.ModelSerializer):
-    pubpid = serializers.CharField()
+    pubpid = serializers.CharField(required=False)
     gov_id = serializers.CharField(source='ss')
-    date = serializers.DateTimeField()
+    date = serializers.DateTimeField(required=False, allow_null=True, default=timezone.now())
     fname = serializers.CharField()
     lname = serializers.CharField()
-    mname = serializers.CharField()
+    mname = serializers.CharField(allow_null=True, allow_blank=True)
     dob = serializers.DateField()
-    sex = serializers.ChoiceField(choices=('Male', 'Female'))
-    status = serializers.CharField()
+    sex = serializers.CharField()
+    status = serializers.CharField(allow_null=True, allow_blank=True)
     email = serializers.EmailField()
     address = serializers.CharField(source='street')
-    postal_code = serializers.CharField()
-    city = serializers.CharField()
-    state = serializers.CharField()
-    country_code = serializers.CharField()
-    phone_contact = serializers.CharField()
-    phone_cell = serializers.CharField()
+    postal_code = serializers.CharField(required=False)
+    city = serializers.CharField(allow_null=True, allow_blank=True)
+    state = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    country_code = serializers.CharField(allow_null=True, allow_blank=True)
+    phone_contact = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    phone_cell = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+
+    # TODO Add emergency contact name
 
     class Meta:
         model = PatientData
         exclude = ('street', 'ss', 'pid',)
+
+    def create(self, validated_data):
+        med_his = MedicalHistory.objects.create()
+        print(med_his.id)
+        patient = PatientData.objects.create(pid=med_his, **validated_data)
+        # CLEANUP - Delete Dup Medical History if it exists
+        dup = MedicalHistory.objects.filter(pid=med_his.pid).latest('id')
+        dup.delete()
+        return patient.pid
 
 
 class VisitSerializer(serializers.Serializer):
@@ -257,9 +274,9 @@ class ListMedicalHistorySerializer(serializers.Serializer):
 
 class CreateUpdateMedicalHistorySerializer(serializers.ModelSerializer):
     patient_data = PatientDataSerializer()
-    history_data = HistoryDataSerializer(many=True)
-    forms = FormsSerializer(many=True)
-    lists = ListsSerializer(many=True)
+    #history_data = HistoryDataSerializer(many=True)
+    #forms = FormsSerializer(many=True)
+    #lists = ListsSerializer(many=True)
 
     class Meta:
         model = MedicalHistory

@@ -1,11 +1,11 @@
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login as login_user, logout as logout_user
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth import login as login_user, logout as logout_user
+from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from forms import LoginForm, CrispyPasswordChangeForm, UserCreateForm, UserUpdateForm
-from models import PatientData, MedicalHistory, Forms, HistoryData, Visit
-from rest_framework import viewsets
-from serializers import UserSerializer, PatientDataSerializer, ListMedicalHistorySerializer, CreateUpdateMedicalHistorySerializer, FormsSerializer, HistoryDataSerializer, VisitSerializer
+from models import PatientData, MedicalHistory, Forms, HistoryData, FormEncounter, FormVitals, FormReviewofs, FormRos, Facility
+from rest_framework import viewsets, status
+from serializers import UserSerializer, PatientDataSerializer, ListMedicalHistorySerializer, CreateUpdateMedicalHistorySerializer, HistoryDataSerializer
 from django.shortcuts import render, redirect
 from rest_framework import filters, generics
 from rest_framework.decorators import api_view
@@ -301,30 +301,6 @@ def api_root(request, format=None):
 	})
 
 
-class VisitsHistoryList(generics.ListAPIView):
-	"""
-	This view allow the user to use .list() or .retrieve() for patient visits data based on the users pubpid.
-	"""
-	serializer_class = ListMedicalHistorySerializer
-
-	def get_queryset(self):
-		public_pid = self.kwargs['pubpid']
-		return MedicalHistory.objects.filter(patient_data__pubpid=public_pid)
-	"""
-	def get_queryset(self):
-		public_pid = self.kwargs['pubpid']
-		mh_cache_query = str("MH-" + public_pid)
-		cached = cache.get(mh_cache_query)
-		if cached:
-			return cached
-		else:
-			queryset = MedicalHistory.objects.filter(patient_data__pubpid=public_pid)
-			cache.set(mh_cache_query, queryset, 3600)
-			return queryset
-	"""
-
-
-
 @api_view(['GET'])
 def list_visits(request, pubpid, format=None):
 	"""
@@ -389,9 +365,121 @@ def create_visit(request, format=None):
 	:return:
 	"""
 
+	# Step 1 Get Metadata and Validate PatientData
+	# Read in meta data for preprocessing, store data for use later in analytics
+	# Check metadata for info about the patient
+	if 'meta' in request.data:			# TODO Make a Metadata class
+		meta = request.data['meta']		# if there is metadata, get it
+
+		if meta['patient_exists'].title() == "No":					# Check to see if the patient exists based on meta
+			# TODO create a function that makes sure that this is a
+			# new patient even though it was specified
+			new_patient = request.data['patient_data']				# Get new patient from the POST if it doesn't exist
+			serializer = PatientDataSerializer(data=new_patient)	# Serialize POSTed data
+
+			if serializer.is_valid():								# If the data is valid
+				pid = serializer.save()									# Create a new patient data instance
+				print(pid)
+				import pdb; pdb.set_trace()
+			else:
+				return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		else:															# If patient exists, retrieve object from DB
+			existing_patient = request.data['patient_data']['pubpid']
+			med_his = MedicalHistory.objects.get(patient_data__pubpid=existing_patient)
+			pid = med_his.pid
+
+	# TODO If meta not provided at all, check to see if the patient exists
+
+	# Step 2 - Parse POST to get HistoryData attributes
+	# Parse history_data key, pass it to the HistoryDataSerializer
+
+	history_data = request.data['history_data']
+	history_data['pid'] = pid
+	serializer = HistoryDataSerializer(data=history_data)
+	if serializer.is_valid():
+		serializer.save()
+	else:
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+	# Step 3 - Parse POST to get Vists attributes
+	# Parse the visit key
+	"""
+	visit = request.data['visit']
+
+	user = visit['user']
+	date = visit['date']
+	glucose = visit['glucose']
+	pulse = visit['pulse']
+	bps = visit['bps']
+	bpd = visit['bpd']
+	height = visit['height']
+	weight = visit['weight']
+	bmi = visit['bmi']
+	dry_mouth = visit['dry_mouth']
+	high_blood_pressure = visit['high_blood_pressure']
+	n_numbness = visit['n_numbness']
+	n_weakness = visit['n_weakness']
+	p = visit['p']
+	diabetes = visit['diabetes']
+
+
+
+	count = 0
+	while (count < 4):
+		form = Forms.objects.create(
+			date=date,
+			pid=pid,
+			deleted=0,
+			med_his=med_his,
+			form_id=form_id+count,
+		)
+		form.id += 1
+		import pdb; pdb.set_trace()
+		if count is 0:
+			form_encounter = FormEncounter.objects.create(
+				pid=form.pid,
+				date=form.date,
+				id=form,
+				facility_id=Facility.objects.get(id=3),
+			)
+		if count is 1:
+			form_vitals = FormVitals.objects.create(
+				id=form,
+				pid=form.pid,
+				date=form.date,
+				user=user,
+				pulse=pulse,
+				bps=bps,
+				bpd=bpd,
+				height=height,
+				weight=weight,
+				bmi=bmi,
+				glucose=glucose
+			)
+		if count is 2:
+			form_ros = FormRos(
+				id=form,
+				date=form.date,
+				pid=form.pid,
+				p=p,
+				n_numbness=n_numbness,
+				n_weakness=n_weakness,
+				diabetes=diabetes
+			)
+		if count is 3:
+			form_reviewofs = FormReviewofs(
+				id=form,
+				pid=form.pid,
+				date=form.date,
+				dry_mouth=dry_mouth,
+				high_blood_pressure=high_blood_pressure,
+
+			)
+	"""
+	# Send the data back to the user
 	if request.method == 'POST':
-		print(request.data)
-		return Response({'message': 'success', 'data': request.data})
+		return Response(status=status.HTTP_201_CREATED)
 
 
 class PatientDataList(generics.ListAPIView):
@@ -438,6 +526,66 @@ class UserViewSet(viewsets.ModelViewSet):
 	serializer_class = UserSerializer
 
 
-class FormsList(generics.ListAPIView):
-	queryset = Forms.objects.all()
-	serializer_class = FormsSerializer
+"""
+
+
+
+dict = {
+		'meta': {
+			'latitude': True,
+			'longitude': True,
+			'datetime': True,
+			'duration': True, # length of visit, timestamp.end - timestamp.start
+			'user': True, # who performed the test (useful because I can compare to the token to avoid fraud)
+			'patient_exists': True, # Search was successful, patient is in the DB
+			'internet': True, # Tuple, rank the internet connection
+		},
+		'patient_data': {
+		},
+		'visit': {
+			"weight": True,
+			"bpd": True,
+			"dry_mouth": True,
+			"bmi": True,
+			"high_blood_pressure": True,
+			"height": True,
+			"bps": True,
+			"pulse": True,
+			"glucose": null,
+		}
+	}
+
+
+cURL Testing
+
+# Get Token
+curl -H "Content-Type: application/json" -X POST -d '{"username":"admin","password":"seniordesign15"}' https://www.remotehcs.com/api/token/
+
+# GET patient data
+curl -X GET "https://www.remotehcs.com/api/records/patient-data?pubpid=28005573" -H "Authorization: Token b7b1b9eb162121622e50231e3be5ad01b81f7ce9"
+
+# GET visits
+curl -X GET "http://http-env.us-east-1.elasticbeanstalk.com/api/records/28005573/visits" -H "Authorization: Token b7b1b9eb162121622e50231e3be5ad01b81f7ce9"
+
+# POST visit
+curl -H "Authorization: Token b7b1b9eb162121622e50231e3be5ad01b81f7ce9" -X POST -d '{"pubpid": "28005573", "gov_id": "12345678", "date": "2016-04-11T20:35:25Z", "fname": "Ryan", "lname": "O'Flaherty", "mname": "A", "dob": "1994-11-19", "sex": "Male", "status": "single", "email": "ryflare@bu.edu", "address": "316 St. Paul Street", "postal_code": "02446", "city": "Brookline", "state": "MA", "country_code": "USA", "phone_contact": "","phone_cell": "845-258-0884"}' http://http-env.us-east-1.elasticbeanstalk.com/api/records/
+
+
+curl -H "Authorization: Token b7b1b9eb162121622e50231e3be5ad01b81f7ce9" -X POST -d '{"pubpid": "28005573",
+"gov_id": "12345678",
+"date": "2016-04-11T20:35:25Z",
+"fname": "Ryan",
+"lname": "O'Flaherty",
+"mname": "A",
+"dob": "1994-11-19",
+"sex": "Male",
+"status": "single",
+"email": "ryflare@bu.edu",
+"address": "316 St. Paul Street",
+"postal_code": "02446",
+"city": "Brookline",
+"state": "MA",
+"country_code": "USA",
+"phone_contact": "",
+"phone_cell": "845-258-0884"}' http://http-env.us-east-1.elasticbeanstalk.com/api/records/
+"""

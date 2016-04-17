@@ -1,6 +1,9 @@
 from __future__ import unicode_literals
 from django.db import models
 from django.utils import timezone
+from datetime import datetime
+import uuid
+import time
 
 # Create your models here.
 
@@ -14,7 +17,13 @@ Store a list of all medical objects associated with a patient data object
 
 class MedicalHistory(models.Model):
     id = models.AutoField(primary_key=True)
-    pid = models.BigIntegerField(unique=True)
+
+    # TODO Check to make sure pid is unique
+    def new_pid():
+        mh = MedicalHistory.objects.latest('pid')
+        return mh.pid + 1
+
+    pid = models.BigIntegerField(unique=True, default=new_pid)
 
     def __unicode__(self):
         return str(self.id)
@@ -22,12 +31,38 @@ class MedicalHistory(models.Model):
     class Meta:
         managed = True
 
+"""
+class Metadata(models.Model):
+    # Connection status during creation of a patient record.
+    NO_INTERNET = 1
+    BAD_CONNECTION = 2
+    GOOD_CONNECTION = 3
+    INTERNET_STATUS_CHOICES = (
+        (NO_INTERNET, 'Offline'),
+        (BAD_CONNECTION, 'Intermittent'),
+        (GOOD_CONNECTION, 'Good'),
+    )
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255, blank=True, null=True, default=None)
+    lat = models.FloatField(blank=True, null=True, default=None, verbose_name="Latitude")
+    lon = models.FloatField(blank=True, null=True, default=None, verbose_name="Longitude")
+    internet = models.IntegerField(choices=INTERNET_STATUS_CHOICES, default=GOOD_CONNECTION)
+    duration = models.DurationField(null=True, blank=True)
+    pubpid = models.ForeignKey('PatientData', to_field='pubpid', related_name='patient_metadata', null=True, blank=True)
+"""
 
+
+# TODO Add emergency contact name
 class PatientData(models.Model):
     pid = models.OneToOneField(MedicalHistory, db_column='pid', to_field='pid', related_name='patient_data', primary_key=True, unique=True)
-    pubpid = models.CharField(max_length=255)
+
+    def create_pubpid():
+        new_pubpid = str(uuid.uuid4().int)[:8]
+        return new_pubpid
+
+    pubpid = models.CharField(unique=True, default=create_pubpid, editable=False, max_length=255)
     ss = models.CharField(max_length=255)
-    date = models.DateTimeField(blank=True, null=True)
+    date = models.DateTimeField(blank=True, null=True, default=datetime.now)
     fname = models.CharField(max_length=255)
     lname = models.CharField(max_length=255)
     mname = models.CharField(max_length=255, null=True)
@@ -149,7 +184,7 @@ class FormEncounter(models.Model):
     id = models.OneToOneField(Forms, db_column='id', to_field='form_id', related_name='form_encounter', primary_key=True)
     pid = models.BigIntegerField(blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
-    facility_id = models.ForeignKey(Facility, db_column='facility_id', related_name='facility')
+    facility_id = models.ForeignKey(Facility, db_column='facility_id', related_name='facility', null=True, blank=True)
     encounter = models.BigIntegerField(unique=True)
 
     def __unicode__(self):
