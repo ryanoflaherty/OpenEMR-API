@@ -43,6 +43,7 @@ class Metadata(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, blank=True, null=True, default=None)
     date = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    patient_exists = models.CharField(null=True, blank=True, default='No', max_length=15)
     lat = models.FloatField(blank=True, null=True, default=None, verbose_name="Latitude")
     lon = models.FloatField(blank=True, null=True, default=None, verbose_name="Longitude")
     internet = models.IntegerField(choices=INTERNET_STATUS_CHOICES, default=GOOD_CONNECTION)
@@ -84,7 +85,7 @@ class PatientData(models.Model):
     phone_cell = models.CharField(max_length=255, null=True)
 
     def __unicode__(self):
-         return str(self.pid) + ', ' + self.lname
+         return str(self.pubpid)
 
     class Meta:
         managed = False
@@ -109,12 +110,17 @@ class HistoryData(models.Model):
         ordering = ['date']
 
 
+def new_form_id():
+    form = Forms.objects.latest('id')
+    return form.form_id + 1
+
+
 class Forms(models.Model):
     id = models.AutoField(primary_key=True)
     date = models.DateTimeField(blank=True, null=True)
-    encounter = models.BigIntegerField(unique=True, blank=True, null=True)
+    encounter = models.BigIntegerField(blank=True, null=True)
     form_name = models.TextField(blank=True, null=True)
-    form_id = models.BigIntegerField(blank=True, null=True, unique=True)
+    form_id = models.BigIntegerField(blank=True, null=True, unique=True, default=new_form_id)
     pid = models.BigIntegerField(blank=True, null=True)
     user = models.CharField(max_length=255, blank=True, null=True)
     deleted = models.IntegerField(null=False, default=0)
@@ -189,7 +195,7 @@ class FormEncounter(models.Model):
     id = models.OneToOneField(Forms, db_column='id', to_field='form_id', related_name='form_encounter', primary_key=True)
     pid = models.BigIntegerField(blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
-    facility_id = models.ForeignKey(Facility, db_column='facility_id', related_name='facility', null=True, blank=True)
+    facility_id = models.ForeignKey(Facility, db_column='facility_id', related_name='facility', null=True, blank=True, default=3)
     encounter = models.BigIntegerField(unique=True)
 
     def __unicode__(self):

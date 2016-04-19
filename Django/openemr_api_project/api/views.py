@@ -3,9 +3,9 @@ from django.contrib.auth import login as login_user, logout as logout_user
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from forms import LoginForm, CrispyPasswordChangeForm, UserCreateForm, UserUpdateForm
-from models import PatientData, MedicalHistory, Forms, HistoryData, Metadata
+from models import PatientData, MedicalHistory, Forms, HistoryData, Metadata, FormVitals, FormRos, FormReviewofs, FormEncounter
 from rest_framework import viewsets, status
-from serializers import UserSerializer, PatientDataSerializer, MetadataSerializer, CreateUpdateMedicalHistorySerializer, HistoryDataSerializer
+from serializers import UserSerializer, PatientDataSerializer, MetadataSerializer, HistoryDataSerializer
 from django.shortcuts import render, redirect
 from rest_framework import filters, generics
 from rest_framework.decorators import api_view
@@ -16,7 +16,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.views.generic.base import TemplateView
 from braces.views import LoginRequiredMixin, StaffuserRequiredMixin
 from django.core.exceptions import ValidationError
-
+from django.utils import timezone
 
 # Templates
 ##########################################################
@@ -329,7 +329,7 @@ def list_visits(request, pubpid, format=None):
 		if str(form.encounter) not in dict:
 			dict[str(form.encounter)] = len(visits)
 			visits.append({"date": form.date, "user": form.user})
-		if form.form_name == "Vitals":
+		if form.form_name.title() == str("Vitals").title():
 			visits[dict[str(form.encounter)]]["glucose"] = form.form_vitals.glucose
 			visits[dict[str(form.encounter)]]["pulse"] = form.form_vitals.pulse
 			visits[dict[str(form.encounter)]]["bps"] = form.form_vitals.bps
@@ -337,10 +337,10 @@ def list_visits(request, pubpid, format=None):
 			visits[dict[str(form.encounter)]]["height"] = form.form_vitals.height
 			visits[dict[str(form.encounter)]]["weight"] = form.form_vitals.weight
 			visits[dict[str(form.encounter)]]["bmi"] = form.form_vitals.bmi
-		if form.form_name == "Review of Systems Checks":
+		if form.form_name.title() == str("Review Of Systems Checks").title():
 			visits[dict[str(form.encounter)]]['dry_mouth'] = form.form_reviewofs.dry_mouth
 			visits[dict[str(form.encounter)]]['high_blood_pressure'] = form.form_reviewofs.high_blood_pressure
-		if form.form_name == "Review Of Systems":
+		if form.form_name.title() == str("Review Of Systems").title():
 			visits[dict[str(form.encounter)]]['numbness'] = form.form_ros.n_numbness
 			visits[dict[str(form.encounter)]]['pregnant'] = form.form_ros.p
 			visits[dict[str(form.encounter)]]['dizziness'] = form.form_ros.n_weakness
@@ -368,30 +368,36 @@ def create_visit(request, format=None):
 	# Step 1 Get Metadata and Validate PatientData
 	# Read in meta data for preprocessing, store data for use later in analytics
 	# Check metadata for info about the patient
-	if 'meta' in request.data:			# TODO Make a Metadata class
-		meta = request.data['meta']		# if there is metadata, get it
-
+	if 'metadata' in request.data:			# TODO Make a Metadata class
+		meta = request.data['metadata']		# if there is metadata, get it
+		print('meta exits')
 		if meta['patient_exists'].title() == "No":					# Check to see if the patient exists based on meta
 			# TODO create a function that makes sure that this is a
 			# new patient even though it was specified
 			new_patient = request.data['patient_data']				# Get new patient from the POST if it doesn't exist
 			serializer = PatientDataSerializer(data=new_patient)	# Serialize POSTed data
+			print('new patient')
 
 			if serializer.is_valid():								# If the data is valid
 				pid = serializer.save()									# Create a new patient data instance
-				print(pid)
-				import pdb; pdb.set_trace()
+				med_his = MedicalHistory.objects.get(pid=pid)
 			else:
 				return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 		else:															# If patient exists, retrieve object from DB
+			print('existing patient')
 			existing_patient = request.data['patient_data']['pubpid']
 			med_his = MedicalHistory.objects.get(patient_data__pubpid=existing_patient)
 			pid = med_his.pid
 
-	# After getting/creating patient, save the meta data
-	serializer = MetadataSerializer(meta)
-
+		# After getting/creating patient, save the meta data
+		meta['pubpid'] = PatientData.objects.get(pid=pid)
+		serializer = MetadataSerializer(data=meta)
+		if serializer.is_valid():
+			print(serializer.validated_data)
+			serializer.save()
+		else:
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 	# TODO If meta not provided at all, check to see if the patient exists
 
@@ -399,20 +405,25 @@ def create_visit(request, format=None):
 	# Parse history_data key, pass it to the HistoryDataSerializer
 
 	history_data = request.data['history_data']
-	history_data['pid'] = pid
+	history_data['pid'] = int(pid)
 	serializer = HistoryDataSerializer(data=history_data)
 	if serializer.is_valid():
+		print(serializer.validated_data)
 		serializer.save()
 	else:
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 	# Step 3 - Parse POST to get Vists attributes
 	# Parse the visit key
-	"""
+
 	visit = request.data['visit']
 
 	user = visit['user']
-	date = visit['date']
+	# Optional Date
+	if 'date' in visit:
+		date = visit['date']
+	else:
+		date = timezone.now()
 	glucose = visit['glucose']
 	pulse = visit['pulse']
 	bps = visit['bps']
@@ -427,61 +438,95 @@ def create_visit(request, format=None):
 	p = visit['p']
 	diabetes = visit['diabetes']
 
+	# Note - Due to the fact that OpenEMR has a row in forms for every encounter, vitals, ros, review_ofs,
+	# we need to create 6 different objects.  Next we create an object for all of the information
+	# we get from the API.  Serializers are inefficient as well, data validation is handled by the model as
+	# of right now.
 
+	# TODO Make a validation class for Forms and derivatives
 
-	count = 0
-	while (count < 4):
-		form = Forms.objects.create(
-			date=date,
-			pid=pid,
-			deleted=0,
-			med_his=med_his,
-			form_id=form_id+count,
-		)
-		form.id += 1
-		import pdb; pdb.set_trace()
-		if count is 0:
-			form_encounter = FormEncounter.objects.create(
-				pid=form.pid,
-				date=form.date,
-				id=form,
-				facility_id=Facility.objects.get(id=3),
-			)
-		if count is 1:
-			form_vitals = FormVitals.objects.create(
-				id=form,
-				pid=form.pid,
-				date=form.date,
-				user=user,
-				pulse=pulse,
-				bps=bps,
-				bpd=bpd,
-				height=height,
-				weight=weight,
-				bmi=bmi,
-				glucose=glucose
-			)
-		if count is 2:
-			form_ros = FormRos(
-				id=form,
-				date=form.date,
-				pid=form.pid,
-				p=p,
-				n_numbness=n_numbness,
-				n_weakness=n_weakness,
-				diabetes=diabetes
-			)
-		if count is 3:
-			form_reviewofs = FormReviewofs(
-				id=form,
-				pid=form.pid,
-				date=form.date,
-				dry_mouth=dry_mouth,
-				high_blood_pressure=high_blood_pressure,
+	# Get latest encounter
+	latest_form = Forms.objects.latest('id')
+	encounter = latest_form.encounter + 1
 
-			)
-	"""
-	# Send the data back to the user
+	# Create Form + Encounter
+	form_e = Forms.objects.create(
+		date=date,
+		pid=pid,
+		deleted=0,
+		med_his=med_his,
+		encounter=encounter,
+		form_name="New Patient Encounter"
+	)
+	form_encounter = FormEncounter.objects.create(
+		id = form_e,
+		pid=form_e.pid,
+		date=form_e.date,
+		encounter=encounter,
+	)
+
+	# Create Form + Vitals Objects
+	form_v = Forms.objects.create(
+		date=date,
+		pid=pid,
+		deleted=0,
+		med_his=med_his,
+		encounter=encounter,
+		form_name="Vitals"
+	)
+	form_vitals = FormVitals.objects.create(
+		id=form_v,
+		pid=form_v.pid,
+		date=form_v.date,
+		user=user,
+		pulse=pulse,
+		bps=bps,
+		bpd=bpd,
+		height=height,
+		weight=weight,
+		bmi=bmi,
+		glucose=glucose
+	)
+
+	# Create Form + Ros
+	form_r1 = Forms.objects.create(
+		date=date,
+		pid=pid,
+		deleted=0,
+		med_his=med_his,
+		encounter=encounter,
+		form_name="Review of Systems"
+	)
+	form_ros = FormRos(
+		id=form_r1,
+		date=form_r1.date,
+		pid=form_r1.pid,
+		p=p,
+		n_numbness=n_numbness,
+		n_weakness=n_weakness,
+		diabetes=diabetes
+	)
+
+	# Create Form + Reviewofs
+	form_r2 = Forms.objects.create(
+		date=date,
+		pid=pid,
+		deleted=0,
+		med_his=med_his,
+		encounter=encounter,
+		form_name="Review of Systems Checks"
+	)
+	form_reviewofs = FormReviewofs(
+		id=form_r2,
+		pid=form_r2.pid,
+		date=form_r2.date,
+		dry_mouth=dry_mouth,
+		high_blood_pressure=high_blood_pressure,
+	)
+
+	# TODO If the visit does not successfully happen, send back a 400 Error
+
+	# Let the user know the POST was successful
 	if request.method == 'POST':
 		return Response(status=status.HTTP_201_CREATED)
 
@@ -531,9 +576,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 """
-
-
-
 dict = {
 		'meta': {
 			'latitude': True,

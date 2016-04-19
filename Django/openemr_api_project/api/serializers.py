@@ -125,12 +125,13 @@ class FormReviewofsSerializer(serializers.Serializer):
 ##################################################
 class FormsSerializer(serializers.Serializer):
     #id = serializers.IntegerField(read_only=True)
-    date = serializers.DateTimeField()
-    encounter = serializers.IntegerField()
-    form_name = serializers.CharField()
+    date = serializers.DateTimeField(required=False, allow_null=True, default=timezone.now())
+    encounter = serializers.IntegerField(required=False)
+    form_name = serializers.CharField(required=False)
     user = serializers.CharField(max_length=255)
     deleted = serializers.IntegerField(default=0)
-
+    form_id = serializers.IntegerField(required=True, write_only=True)
+    """
     # Vitals
     glucose = serializers.FloatField(source='form_vitals.glucose')
     pulse = serializers.FloatField(source='form_vitals.pulse')
@@ -152,6 +153,7 @@ class FormsSerializer(serializers.Serializer):
     #form_ros = FormRosSerializer()
     #form_vitals = FormVitalsSerializer()
     #form_reviewofs = FormReviewofsSerializer()
+    """
 
     class Meta:
         model = Forms
@@ -159,7 +161,7 @@ class FormsSerializer(serializers.Serializer):
 
 
 class HistoryDataSerializer(serializers.Serializer):
-    pid = serializers.IntegerField()
+    pid = serializers.IntegerField(write_only=True, required=True)
     date = serializers.DateTimeField(required=False, default=timezone.now())
     tobacco = serializers.CharField()
     relatives_diabetes = serializers.CharField()
@@ -256,6 +258,7 @@ class MetadataSerializer(serializers.ModelSerializer):
     )
     name = serializers.CharField(max_length=255, required=False, allow_blank=True)
     date = serializers.DateTimeField(required=False)
+    patient_exists = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     lat = serializers.FloatField(required=False, allow_null=True, label='Latitude')
     lon = serializers.FloatField(required=False, allow_null=True, label='Longitude')
     internet = serializers.ChoiceField(choices=INTERNET_STATUS_CHOICES, default=GOOD_CONNECTION, allow_null=True, required=False)
@@ -263,6 +266,7 @@ class MetadataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Metadata
+        exclude = ('id',)
 
     def create(self, validated_data):
         lat = validated_data['lat']
