@@ -1,9 +1,10 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from models import PatientData, HistoryData, MedicalHistory, FormEncounter, Forms, Lists, Facility, FormRos, FormReviewofs, FormVitals, Visit
+from models import PatientData, HistoryData, MedicalHistory, FormEncounter, Forms, Lists, Facility, FormRos, FormReviewofs, FormVitals, Visit, Metadata
 from rest_framework.fields import SkipField
 from collections import OrderedDict
 from django.utils import timezone
+from geopy.geocoders import GoogleV3
 
 
 # Helper Class
@@ -240,6 +241,37 @@ class VisitSerializer(serializers.Serializer):
 
     class Meta:
         model = Visit
+
+
+# Metadata
+###########################################################
+class MetadataSerializer(serializers.ModelSerializer):
+    NO_INTERNET = 1
+    BAD_CONNECTION = 2
+    GOOD_CONNECTION = 3
+    INTERNET_STATUS_CHOICES = (
+        (NO_INTERNET, 'Offline'),
+        (BAD_CONNECTION, 'Intermittent'),
+        (GOOD_CONNECTION, 'Good'),
+    )
+    name = serializers.CharField(max_length=255, required=False, allow_blank=True)
+    date = serializers.DateTimeField(required=False)
+    lat = serializers.FloatField(required=False, allow_null=True, label='Latitude')
+    lon = serializers.FloatField(required=False, allow_null=True, label='Longitude')
+    internet = serializers.ChoiceField(choices=INTERNET_STATUS_CHOICES, default=GOOD_CONNECTION, allow_null=True, required=False)
+    duration = serializers.DurationField(allow_null=True, required=False)
+
+    class Meta:
+        model = Metadata
+
+    def create(self, validated_data):
+        lat = validated_data['lat']
+        lon = validated_data['lon']
+        geolocator = GoogleV3()
+        location = geolocator.reverse(str(lat) + ', ' + str(lon), exactly_one=True)
+        validated_data['location'] = str(location.address)
+        return Metadata.objects.create(**validated_data)
+
 
 
 # MedicalHistory

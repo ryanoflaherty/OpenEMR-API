@@ -16,7 +16,7 @@ urlpatterns = [
 API Endpoints for app functionality
 """
 urlpatterns += [
-    url(r'^test/$', views.CreateUpdateMedicalRecord.as_view(), name='old-medical-record-create-update'), # OLD Create a new Medical History object
+    url(r'^test/$', views.MetadataView.as_view(), name='old-medical-record-create-update'), # OLD Create a new Medical History object
     url(r'^records/$', views.create_visit, name='medical-record-create-update'),   # Create a new Medical History object
     url(r'^records/patient-data', views.PatientDataList.as_view(), name='patient-data-list'),   # Return a filtered list of Patient Data objects
     url(r'^records/(?P<pubpid>[0-9]+)/visits', views.list_visits, name='visits-list'),  # Return a list of visits based on pid

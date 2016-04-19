@@ -1,9 +1,7 @@
 from __future__ import unicode_literals
 from django.db import models
 from django.utils import timezone
-from datetime import datetime
 import uuid
-import time
 
 # Create your models here.
 
@@ -15,14 +13,14 @@ Store a list of all medical objects associated with a patient data object
 """
 
 
+# TODO Check to make sure pid is unique
+def new_pid():
+    mh = MedicalHistory.objects.latest('pid')
+    return mh.pid + 1
+
+
 class MedicalHistory(models.Model):
     id = models.AutoField(primary_key=True)
-
-    # TODO Check to make sure pid is unique
-    def new_pid():
-        mh = MedicalHistory.objects.latest('pid')
-        return mh.pid + 1
-
     pid = models.BigIntegerField(unique=True, default=new_pid)
 
     def __unicode__(self):
@@ -31,7 +29,7 @@ class MedicalHistory(models.Model):
     class Meta:
         managed = True
 
-"""
+
 class Metadata(models.Model):
     # Connection status during creation of a patient record.
     NO_INTERNET = 1
@@ -44,25 +42,32 @@ class Metadata(models.Model):
     )
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, blank=True, null=True, default=None)
+    date = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     lat = models.FloatField(blank=True, null=True, default=None, verbose_name="Latitude")
     lon = models.FloatField(blank=True, null=True, default=None, verbose_name="Longitude")
     internet = models.IntegerField(choices=INTERNET_STATUS_CHOICES, default=GOOD_CONNECTION)
     duration = models.DurationField(null=True, blank=True)
+    location = models.TextField(null=True, blank=True)
     pubpid = models.ForeignKey('PatientData', to_field='pubpid', related_name='patient_metadata', null=True, blank=True)
-"""
+
+    class Meta:
+        managed = True
+
+    def __unicode__(self):
+        return str(self.pubpid)
+
+
+def create_pubpid():
+    new_pubpid = str(uuid.uuid4().int)[:8]
+    return new_pubpid
 
 
 # TODO Add emergency contact name
 class PatientData(models.Model):
     pid = models.OneToOneField(MedicalHistory, db_column='pid', to_field='pid', related_name='patient_data', primary_key=True, unique=True)
-
-    def create_pubpid():
-        new_pubpid = str(uuid.uuid4().int)[:8]
-        return new_pubpid
-
     pubpid = models.CharField(unique=True, default=create_pubpid, editable=False, max_length=255)
     ss = models.CharField(max_length=255)
-    date = models.DateTimeField(blank=True, null=True, default=datetime.now)
+    date = models.DateTimeField(blank=True, null=True, default=timezone.now)
     fname = models.CharField(max_length=255)
     lname = models.CharField(max_length=255)
     mname = models.CharField(max_length=255, null=True)

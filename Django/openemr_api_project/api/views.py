@@ -3,9 +3,9 @@ from django.contrib.auth import login as login_user, logout as logout_user
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from forms import LoginForm, CrispyPasswordChangeForm, UserCreateForm, UserUpdateForm
-from models import PatientData, MedicalHistory, Forms, HistoryData, FormEncounter, FormVitals, FormReviewofs, FormRos, Facility
+from models import PatientData, MedicalHistory, Forms, HistoryData, Metadata
 from rest_framework import viewsets, status
-from serializers import UserSerializer, PatientDataSerializer, ListMedicalHistorySerializer, CreateUpdateMedicalHistorySerializer, HistoryDataSerializer
+from serializers import UserSerializer, PatientDataSerializer, MetadataSerializer, CreateUpdateMedicalHistorySerializer, HistoryDataSerializer
 from django.shortcuts import render, redirect
 from rest_framework import filters, generics
 from rest_framework.decorators import api_view
@@ -389,6 +389,10 @@ def create_visit(request, format=None):
 			med_his = MedicalHistory.objects.get(patient_data__pubpid=existing_patient)
 			pid = med_his.pid
 
+	# After getting/creating patient, save the meta data
+	serializer = MetadataSerializer(meta)
+
+
 	# TODO If meta not provided at all, check to see if the patient exists
 
 	# Step 2 - Parse POST to get HistoryData attributes
@@ -510,12 +514,12 @@ class PatientDataList(generics.ListAPIView):
 		return queryset
 
 
-class CreateUpdateMedicalRecord(generics.CreateAPIView, generics.UpdateAPIView):
+class MetadataView(generics.ListAPIView, generics.UpdateAPIView, generics.CreateAPIView):
 	"""
 	This view allow the user to view and modify MedicalHistory records.
 	"""
-	queryset = MedicalHistory.objects.all()
-	serializer_class = CreateUpdateMedicalHistorySerializer
+	queryset = Metadata.objects.all()
+	serializer_class = MetadataSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
