@@ -180,15 +180,6 @@ class UserManagement(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
 	raise_exception = True
 
 	def get(self, request, *args, **kwargs):
-		if 'manage_user' in request.session:
-			username = request.session['manage_user']
-			request.session['manage_user'] = ""
-			user = User.objects.get(username=username)
-			form = UserUpdateForm()
-			return render(request, self.template_name, {'user_update_form': form, 'selected_user': user})
-		else:
-			return redirect('/users/overview')
-		"""
 		if 'username' in request.GET:
 			username = request.GET['username']
 			user = User.objects.get(username=username)
@@ -196,7 +187,6 @@ class UserManagement(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
 			return render(request, self.template_name, {'user_update_form': form, 'selected_user': user,})
 		else:
 			return render(request, templates['users'], args)
-		"""
 
 	def post(self, request):
 		form = UserUpdateForm()
@@ -227,19 +217,6 @@ def user_overview(request):
 		args['message'] = sys_messages[request.GET['message']]
 
 	return render(request, template_name, args)
-
-
-@staff_member_required(login_url='/unauthorized/', redirect_field_name='/accounts/login')
-@login_required()
-def set_user(request):
-	username = None
-
-	if request.method == 'GET':
-		username = request.GET['username']
-
-	if username:
-		request.session['manage_user'] = username
-		return HttpResponse(username)
 
 
 class CreateUser(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):

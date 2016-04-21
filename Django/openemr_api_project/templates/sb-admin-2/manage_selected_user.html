@@ -51,10 +51,10 @@
                                     <!-- Button trigger modal -->
                                     {% if selected_user.is_active|yesno:"Yes,No" == "Yes" %}
                                     <p class="text-muted text-center">Click here to remove the user from RemoteHCS. </p>
-                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" style="display: block; margin: 0 auto;">Deactivate</button>
+                                    <a type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" style="display: block; margin: 0 auto;">Deactivate</a>
                                     {% else %}
                                     <p class="text-muted text-center">User is currently inactive. </p>
-                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" style="display: block; margin: 0 auto;" disabled>Deactivate</button>
+                                    <a type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" style="display: block; margin: 0 auto;" disabled>Deactivate</a>
                                     {% endif %}
                                     <!-- Modal -->
                                     <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="Confirm" aria-hidden="true">

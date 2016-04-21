@@ -73,7 +73,7 @@
                                 <td>{{ this_user.email }}</td>
                                 <td>{{ this_user.is_staff|yesno:"Yes,No" }}</td>
                                 <td>{{ this_user.date_joined|date:"M d, Y" }}</td>
-                                <td class="text-center"><a class="manage" id="{{ this_user.username }}" onclick="loadUser()" ><i class="fa fa-edit"></i></a></td>
+                                <td class="text-center"><a href="/users/manage?username={{ this_user.username }}"><i class="fa fa-edit"></i></a></td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -146,14 +146,6 @@
         });
 
         $( "#ctl00_MainContent_grdSearch_itemsHolder > div:contains(1)" ).attr( "disabled", "disabled").css( "background-color", "gray" );
-    });
-
-    $(".manage").click(function(){
-        var user;
-        user = $(this).attr("id");
-        $.get('/manage_user', {username: user}, function(next){
-            window.location.href = "/users/manage"
-        });
     });
     </script>
 {% endblock javascript %}

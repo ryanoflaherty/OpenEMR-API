@@ -26,7 +26,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),   # Admin portal
     url(r'^users/overview', views.user_overview, name='user-overview'),
     url(r'^users/manage', views.UserManagement.as_view(), name='user-management'),
-    url(r'^manage_user', views.set_user, name='set-user'),
     url(r'^analytics', views.analytics, name='analytics'),
     url(r'^help/$', views.help, name='help'),
     url(r'^about/$', views.about, name='about'),
