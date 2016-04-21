@@ -8,8 +8,9 @@ API Endpoints for authentication, API root
 """
 urlpatterns = [
     url(r'^$', views.api_root), # API Root for browsable API
-    url(r'^token/$', rest_views.obtain_auth_token),  # POST to get token
-    url(r'^auth', include('rest_framework.urls', namespace='rest_framework'), name='auth'),  # Session Authenticate to API
+    url(r'^token/$', views.ObtainExpiringAuthToken.as_view())
+    #url(r'^token/$', rest_views.obtain_auth_token),  # POST to get token
+    #url(r'^auth', include('rest_framework.urls', namespace='rest_framework'), name='auth'),  # Session Authenticate to API
 ]
 
 """

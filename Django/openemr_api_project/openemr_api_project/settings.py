@@ -153,7 +153,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 # REST Framework
 REST_FRAMEWORK = {
 	'DEFAULT_AUTHENTICATION_CLASSES': (
-		'rest_framework.authentication.TokenAuthentication',
+        'api.authentication.ExpiringTokenAuthentication',
+		#'rest_framework.authentication.TokenAuthentication',
         #'rest_framework.authentication.SessionAuthentication',
 	),
 	'DEFAULT_PERMISSION_CLASSES': (

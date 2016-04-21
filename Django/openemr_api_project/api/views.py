@@ -17,8 +17,10 @@ from django.views.generic.base import TemplateView
 from braces.views import LoginRequiredMixin, StaffuserRequiredMixin
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 from django.http import HttpResponse
-from django.template import RequestContext
+import datetime
 
 
 # Templates
@@ -47,6 +49,26 @@ sys_messages = {
 	'deactivated': 'The user was successfully deactivated',
 	'activated': 'The user was successfully activated',
 }
+
+
+# Token (With Expiration)
+##########################################################
+class ObtainExpiringAuthToken(ObtainAuthToken):
+	def post(self, request):
+		serializer = self.serializer_class(data=request.data)
+		if serializer.is_valid():
+			token, created = Token.objects.get_or_create(user=serializer.validated_data['user'])
+
+			utc_now = timezone.now()
+			if not created and token.created < utc_now - datetime.timedelta(days=2):
+				token.delete()
+				token = Token.objects.create(user=serializer.object['user'])
+				token.created = datetime.datetime.utcnow()
+				token.save()
+
+			return Response({'token': token.key})
+
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Public Views (Anyone can view)
@@ -128,7 +150,72 @@ def analytics(request):
 	Analytics page with useful data and statistics for the users.
 	"""
 	template_name = templates['analytics']
-	return render(request, template_name)
+
+	# TODO if there is time, create a class/build angular to update these metrics
+
+	# Get general metrics (Historical Data)
+	# Most popular area (presence), duration of visits, internet, new users/user count
+
+	internet_status = 0.0
+	count = 0
+	duration = timezone.timedelta(0, 0)
+
+	hist_meta = Metadata.objects.all()
+	records_created = hist_meta.count()
+	if records_created:
+		for meta in hist_meta:
+			internet_status += int(meta.internet)
+			if meta.duration:
+				duration += meta.duration
+			count += 1
+
+		avg_internet = (internet_status / count)
+		internet_status = (((avg_internet - 1) / 2) * 100)
+		duration = (duration / count)
+		# Scrub microseconds off
+		duration = duration - timezone.timedelta(microseconds=duration.microseconds)
+
+	active_users = User.objects.all().count()
+
+	hist_stats_dict = {
+		'records_created': records_created,
+		'internet_status': "%.2f%% Health" % internet_status,
+		'active_users': active_users,
+		'duration': duration,
+	}
+
+	# Daily metrics
+	# New users, records created, new patients, active users today, internet status, duration
+	internet_status = 0.0
+	count = 0
+	duration = timezone.timedelta(0, 0)
+
+	daily_meta = Metadata.objects.filter(date__lte=timezone.now(), date__gt=timezone.now()-timezone.timedelta(days=1))
+	records_created = daily_meta.count()
+	if records_created:
+		for meta in daily_meta:
+			internet_status += int(meta.internet)
+			duration += meta.duration
+			count += 1
+
+		avg_internet = (internet_status/count)
+		internet_status = (((avg_internet-1)/2) * 100)
+		duration = (duration/count)
+		# Scrub microseconds off
+		duration = duration - timezone.timedelta(microseconds=duration.microseconds)
+
+	active_users = User.objects.filter(last_login__lte=timezone.now(), last_login__gt=timezone.now()-timezone.timedelta(days=1)).count()
+
+	daily_stats_dict = {
+		'records_created': records_created,
+		'internet_status': "%.2f%% Health" % internet_status,
+		'active_users': active_users,
+		'duration': duration,
+	}
+
+	# TODO Region based metrics
+
+	return render(request, template_name, {'daily_stats': daily_stats_dict, 'hist_stats': hist_stats_dict})
 
 
 @login_required()
@@ -419,21 +506,20 @@ def create_visit(request, format=None):
 			serializer = PatientDataSerializer(data=new_patient)	# Serialize POSTed data
 
 			if serializer.is_valid():								# If the data is valid
-				pid = serializer.save()									# Create a new patient data instance
-				med_his = MedicalHistory.objects.get(pid=pid)
+				med_his = serializer.save()									# Create a new patient data instance
+				pid = med_his.pid
 			else:
 				return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 		else:															# If patient exists, retrieve object from DB
 			existing_patient = request.data['patient_data']['pubpid']
-			med_his = MedicalHistory.objects.get(patient_data__pubpid=existing_patient)
+			med_his = MedicalHistory.objects.get(patient_data__pubpid=int(existing_patient))
 			pid = med_his.pid
 
 		# After getting/creating patient, save the meta data
 		meta['pubpid'] = PatientData.objects.get(pid=pid)
 		serializer = MetadataSerializer(data=meta)
 		if serializer.is_valid():
-			print(serializer.validated_data)
 			serializer.save()
 		else:
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -447,7 +533,6 @@ def create_visit(request, format=None):
 	history_data['pid'] = int(pid)
 	serializer = HistoryDataSerializer(data=history_data)
 	if serializer.is_valid():
-		print(serializer.validated_data)
 		serializer.save()
 	else:
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -644,10 +729,10 @@ dict = {
 cURL Testing
 
 # Get Token
-curl -H "Content-Type: application/json" -X POST -d '{"username":"admin","password":"seniordesign15"}' https://www.remotehcs.com/api/token/
+curl -H "Content-Type: application/json" -X POST -d '{"username":"nmorrisn","password":"seniordesign15"}' localhost:8000/api/token/
 
 # GET patient data
-curl -X GET "https://www.remotehcs.com/api/records/patient-data?pubpid=28005573" -H "Authorization: Token b7b1b9eb162121622e50231e3be5ad01b81f7ce9"
+curl -X GET "localhost:8000/api/records/patient-data?pubpid=28005573" -H "Authorization: Token 22f0fbbbe579ecaa4acc19b8011931aabae8fe0a"
 
 # GET visits
 curl -X GET "http://http-env.us-east-1.elasticbeanstalk.com/api/records/28005573/visits" -H "Authorization: Token b7b1b9eb162121622e50231e3be5ad01b81f7ce9"
