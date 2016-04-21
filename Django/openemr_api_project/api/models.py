@@ -49,6 +49,7 @@ class Metadata(models.Model):
     internet = models.IntegerField(choices=INTERNET_STATUS_CHOICES, default=GOOD_CONNECTION)
     duration = models.DurationField(null=True, blank=True)
     location = models.TextField(null=True, blank=True)
+    # TODO Add in hypertension/bloodpressure column for stats reasons
     pubpid = models.ForeignKey('PatientData', to_field='pubpid', related_name='patient_metadata', null=True, blank=True)
 
     class Meta:

@@ -9,9 +9,35 @@
     <div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
-                Active Users
+                Historical Metrics
             </div>
             <div class="panel-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Visits Created</td>
+                            <td>{{ hist_stats.records_created }}</td>
+                        </tr>
+                        <tr>
+                            <td>Average Internet Status</td>
+                            <td>{{ hist_stats.internet_status }}</td>
+                        </tr>
+                        <tr>
+                            <td>Active Users</td>
+                            <td>{{ hist_stats.active_users }}</td>
+                        </tr>
+                        <tr>
+                            <td>Average Duration</td>
+                            <td>{{ hist_stats.duration }}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -21,6 +47,32 @@
                 Daily Metrics
             </div>
             <div class="panel-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Visits Created</td>
+                            <td>{{ daily_stats.records_created }}</td>
+                        </tr>
+                        <tr>
+                            <td>Average Internet Status</td>
+                            <td>{{ daily_stats.internet_status }}</td>
+                        </tr>
+                        <tr>
+                            <td>Active Users</td>
+                            <td>{{ daily_stats.active_users }}</td>
+                        </tr>
+                        <tr>
+                            <td>Average Duration</td>
+                            <td>{{ daily_stats.duration }}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
