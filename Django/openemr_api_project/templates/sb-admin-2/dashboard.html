@@ -1,8 +1,27 @@
 {% extends 'base.html' %}
 
 {% block title %}{{ block.super }} | Dashboard{% endblock %}
-{% block page_title %}Dashboard <small>Welcome, {{ user.first_name }}</small>{% endblock page_title %}
+{% block page_title %}Dashboard <small>Welcome, {{ user.first_name }}</small>{{ block.super }}{% endblock page_title %}
 
 {% block content %}
-
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Manage Users
+            </div>
+            <div class="panel-body">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Create New User
+            </div>
+            <div class="panel-body">
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content %}

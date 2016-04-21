@@ -83,6 +83,17 @@
                                     <!-- /.modal -->
                                 </div>
                             </div>
+                            {% if selected_user.is_active|yesno:"Yes,No" == "No" %}
+                            <div class="panel panel-success">
+                                <div class="panel-heading">
+                                    Activate User
+                                </div>
+                                <div class="panel-body">
+                                    <p class="text-muted text-center">Click here to reactivate the user in RemoteHCS.</p>
+                                    <a href="/accounts/activate?username={{ selected_user.username }}" type="button" class="btn btn-success" style="display: block; margin: 0 auto;">Activate</a>
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

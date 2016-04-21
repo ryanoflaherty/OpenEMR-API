@@ -1,8 +1,28 @@
 {% extends 'base.html' %}
 
 {% block title %}{{ block.super }} | Analytics{% endblock %}
-{% block page_title %}Analytics{% endblock page_title %}
+{% block page_title %}Analytics {{ block.super }}{% endblock page_title %}
 
 
 {% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Active Users
+            </div>
+            <div class="panel-body">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Daily Metrics
+            </div>
+            <div class="panel-body">
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content %}

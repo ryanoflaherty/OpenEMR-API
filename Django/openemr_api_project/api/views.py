@@ -17,6 +17,9 @@ from django.views.generic.base import TemplateView
 from braces.views import LoginRequiredMixin, StaffuserRequiredMixin
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.http import HttpResponse
+from django.template import RequestContext
+
 
 # Templates
 ##########################################################
@@ -37,6 +40,12 @@ templates = {
 	'registration_complete': 'sb-admin-2/registration_complete.html',
 	'delete': 'sb-admin-2/delete.html',
 	'user_deleted': 'sb-admin-2/user_deleted.html',
+}
+
+sys_messages = {
+	'created': 'The user was successfully created',
+	'deactivated': 'The user was successfully deactivated',
+	'activated': 'The user was successfully activated',
 }
 
 
@@ -171,6 +180,15 @@ class UserManagement(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
 	raise_exception = True
 
 	def get(self, request, *args, **kwargs):
+		if 'manage_user' in request.session:
+			username = request.session['manage_user']
+			request.session['manage_user'] = ""
+			user = User.objects.get(username=username)
+			form = UserUpdateForm()
+			return render(request, self.template_name, {'user_update_form': form, 'selected_user': user})
+		else:
+			return redirect('/users/overview')
+		"""
 		if 'username' in request.GET:
 			username = request.GET['username']
 			user = User.objects.get(username=username)
@@ -178,6 +196,7 @@ class UserManagement(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
 			return render(request, self.template_name, {'user_update_form': form, 'selected_user': user,})
 		else:
 			return render(request, templates['users'], args)
+		"""
 
 	def post(self, request):
 		form = UserUpdateForm()
@@ -199,15 +218,28 @@ def user_overview(request):
 	Return a table of users to the admin. Only admin can see this page. Other authenticated users are sent to an error
 	page.
 	"""
+	template_name = templates['users']
 	users = User.objects.all()
 	args = {
 		'users': users,
 	}
 	if 'message' in request.GET:
-		args = {
-			'message': 'The user was successfully deleted!'
-		}
-	return render(request, 'sb-admin-2/users.html', args)
+		args['message'] = sys_messages[request.GET['message']]
+
+	return render(request, template_name, args)
+
+
+@staff_member_required(login_url='/unauthorized/', redirect_field_name='/accounts/login')
+@login_required()
+def set_user(request):
+	username = None
+
+	if request.method == 'GET':
+		username = request.GET['username']
+
+	if username:
+		request.session['manage_user'] = username
+		return HttpResponse(username)
 
 
 class CreateUser(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
@@ -249,7 +281,7 @@ def user_create_done(request):
 		user = User.objects.get(username=new_user)
 		return render(request, templates['registration_complete'], {'new_user': user, 'is_new': is_new})
 	else:
-		return redirect('/users/overview/')
+		return redirect('/users/overview')
 
 
 class DeleteUser(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
@@ -282,8 +314,40 @@ class DeleteUser(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
 @staff_member_required(login_url='/unauthorized/', redirect_field_name='/accounts/login')
 @login_required()
 def delete_user_done(request=None):
-	message = "success"
-	return redirect('/users/overview?message=' + str(message))
+	return redirect('/users/overview?message=deactivated')
+
+
+class ActivateUser(LoginRequiredMixin, StaffuserRequiredMixin, TemplateView):
+	"""
+	This view allows an admin to delete a user account (make inactive, as is Django best practice).
+	"""
+	template_name = templates['users']
+	permission_required = 'request.user.is_staff'
+	raise_exception = True
+
+	def get(self, request, *args, **kwargs):
+		error = []
+
+		if 'username' in request.GET:
+			username = request.GET['username']
+			user = User.objects.get(username=username)
+			user.is_active = True
+			try:
+				user.save()
+				return redirect('/accounts/activate/done/')
+			except ValidationError as e:
+				error.append(e)
+				return render(request, self.template_name, {'errors': error})
+
+		else:
+			error.append("No username found in request.")
+			return render(request, self.template_name, {'error': error})
+
+
+@staff_member_required(login_url='/unauthorized/', redirect_field_name='/accounts/login')
+@login_required()
+def activate_user_done(request=None):
+	return redirect('/users/overview?message=activated')
 
 
 # API Views
@@ -370,13 +434,12 @@ def create_visit(request, format=None):
 	# Check metadata for info about the patient
 	if 'metadata' in request.data:			# TODO Make a Metadata class
 		meta = request.data['metadata']		# if there is metadata, get it
-		print('meta exits')
+
 		if meta['patient_exists'].title() == "No":					# Check to see if the patient exists based on meta
 			# TODO create a function that makes sure that this is a
 			# new patient even though it was specified
 			new_patient = request.data['patient_data']				# Get new patient from the POST if it doesn't exist
 			serializer = PatientDataSerializer(data=new_patient)	# Serialize POSTed data
-			print('new patient')
 
 			if serializer.is_valid():								# If the data is valid
 				pid = serializer.save()									# Create a new patient data instance
@@ -385,7 +448,6 @@ def create_visit(request, format=None):
 				return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 		else:															# If patient exists, retrieve object from DB
-			print('existing patient')
 			existing_patient = request.data['patient_data']['pubpid']
 			med_his = MedicalHistory.objects.get(patient_data__pubpid=existing_patient)
 			pid = med_his.pid
@@ -399,7 +461,7 @@ def create_visit(request, format=None):
 		else:
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-	# TODO If meta not provided at all, check to see if the patient exists
+	# TODO If meta not provided at all, check to see if the patient exists. As of now, it is a REQUIRED field.
 
 	# Step 2 - Parse POST to get HistoryData attributes
 	# Parse history_data key, pass it to the HistoryDataSerializer
