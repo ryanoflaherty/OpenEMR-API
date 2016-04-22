@@ -19,7 +19,6 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from django.http import HttpResponse
 import datetime
 
 
