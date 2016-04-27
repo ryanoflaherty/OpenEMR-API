@@ -242,7 +242,7 @@ class PasswordChange(LoginRequiredMixin, TemplateView):
 		if form.is_valid():
 			form.save()
 			update_session_auth_hash(request, form.user)
-			return redirect('/accounts/password_reset/done/')
+			return redirect('/accounts/password_change/done/')
 		else:
 			return render(request, self.template_name, {'password_change_form': form})
 
@@ -757,4 +757,53 @@ curl -H "Authorization: Token b7b1b9eb162121622e50231e3be5ad01b81f7ce9" -X POST 
 "country_code": "USA",
 "phone_contact": "",
 "phone_cell": "845-258-0884"}' http://http-env.us-east-1.elasticbeanstalk.com/api/records/
+
+{
+	"patient_data": {
+		"gov_id": "32864328",
+		"fname": "Bob",
+		"lname": "Flobb",
+		"mname": "A",
+		"dob": "1993-10-09",
+		"sex": "Male",
+		"status": "single",
+		"email": "ryflare@bu.edu",
+		"address": "2 Rhodes Rd.",
+		"postal_code": "21863",
+		"city": "Sittay",
+		"state": "UT",
+		"country_code": "USA",
+		"phone_contact": "",
+		"phone_cell": "321-332-0935"
+	},
+	"metadata": {
+		"name": "roflaherty",
+		"patient_exists": "No",
+		"lat": 42.349281,
+		"lon": -71.106701,
+		"internet": 3,
+		"duration": "00:33:34"
+	},
+	"history_data": {
+		"tobacco": "yes",
+		"relatives_diabetes": "no",
+		"relatives_high_blood_pressure": "no"
+	},
+	"visit": {
+		"bpd": 120,
+		"weight": 180,
+		"bmi": 24,
+		"pulse": 50,
+		"height": 71.0,
+		"bps": 100,
+		"user": "roflaherty",
+		"glucose": 24,
+		"dry_mouth": "No",
+		"high_blood_pressure": "no",
+		"n_numbness": "no",
+		"n_weakness": "no",
+		"p": "no",
+		"diabetes": "no"
+	}
+}
 """
