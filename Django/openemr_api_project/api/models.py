@@ -24,7 +24,7 @@ class MedicalHistory(models.Model):
     pid = models.BigIntegerField(unique=True, default=new_pid)
 
     def __unicode__(self):
-        return str(self.id)
+        return str(self.pid)
 
     class Meta:
         managed = True

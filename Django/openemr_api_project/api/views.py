@@ -58,11 +58,10 @@ class ObtainExpiringAuthToken(ObtainAuthToken):
 		if serializer.is_valid():
 			token, created = Token.objects.get_or_create(user=serializer.validated_data['user'])
 
-			utc_now = timezone.now()
-			if not created and token.created < utc_now - datetime.timedelta(days=2):
+			if not created:
 				token.delete()
-				token = Token.objects.create(user=serializer.object['user'])
-				token.created = datetime.datetime.utcnow()
+				token = Token.objects.create(user=serializer.validated_data['user'])
+				token.created = timezone.now()
 				token.save()
 
 			return Response({'token': token.key})
@@ -442,7 +441,6 @@ def list_visits(request, pubpid, format=None):
 
 	if med_his:
 		history_data = HistoryData.objects.filter(pid=med_his.pid).latest('date')
-		#forms = Forms.objects.prefetch_related('form_reviewofs', 'form_ros', 'form_vitals').filter(pid=med_his.pid)
 		forms = Forms.objects.filter(pid=med_his.pid)
 	else:
 		med_his = MedicalHistory.objects.get(patient_data__pubpid=pubpid)
@@ -728,7 +726,7 @@ dict = {
 cURL Testing
 
 # Get Token
-curl -H "Content-Type: application/json" -X POST -d '{"username":"nmorrisn","password":"seniordesign15"}' localhost:8000/api/token/
+curl -H "Content-Type: application/json" -X POST -d '{"username":"roflaherty","password":"seniordesign15"}' localhost:8000/api/token/
 
 # GET patient data
 curl -X GET "localhost:8000/api/records/patient-data?pubpid=28005573" -H "Authorization: Token 22f0fbbbe579ecaa4acc19b8011931aabae8fe0a"
