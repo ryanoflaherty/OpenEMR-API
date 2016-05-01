@@ -125,6 +125,7 @@ class Forms(models.Model):
     pid = models.BigIntegerField(blank=True, null=True)
     user = models.CharField(max_length=255, blank=True, null=True)
     deleted = models.IntegerField(null=False, default=0)
+    formdir = models.TextField(null=True, default=None)
     med_his = models.ForeignKey(MedicalHistory, related_name='forms')
 
     def __unicode__(self):
@@ -171,7 +172,7 @@ class IssueEncounter(models.Model):
 
 class Facility(models.Model):
     id = models.BigIntegerField(primary_key=True)
-    name = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255, blank=True, null=True, unique=True)
     phone = models.CharField(max_length=30, blank=True, null=True)
     fax = models.CharField(max_length=30, blank=True, null=True)
     email = models.CharField(max_length=255, blank=True, null=True)
@@ -185,7 +186,7 @@ class Facility(models.Model):
     color = models.CharField(max_length=7)
 
     def __unicode__(self):
-       return str(self.id) + ', ' + self.name
+       return self.name
 
     class Meta:
         managed = False
@@ -196,7 +197,7 @@ class FormEncounter(models.Model):
     id = models.OneToOneField(Forms, db_column='id', to_field='form_id', related_name='form_encounter', primary_key=True)
     pid = models.BigIntegerField(blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
-    facility_id = models.ForeignKey(Facility, db_column='facility_id', related_name='facility', null=True, blank=True, default=3)
+    facility_id = models.ForeignKey(Facility, db_column='facility', to_field='name', related_name='facility')
     encounter = models.BigIntegerField(unique=True)
 
     def __unicode__(self):

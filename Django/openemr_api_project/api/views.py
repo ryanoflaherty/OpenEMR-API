@@ -578,6 +578,8 @@ def create_visit(request, format=None):
 		deleted=0,
 		med_his=med_his,
 		encounter=encounter,
+		user=user,
+		formdir="newpatient",
 		form_name="New Patient Encounter"
 	)
 	form_encounter = FormEncounter.objects.create(
@@ -594,6 +596,7 @@ def create_visit(request, format=None):
 		deleted=0,
 		med_his=med_his,
 		encounter=encounter,
+		formdir="vitals",
 		form_name="Vitals"
 	)
 	form_vitals = FormVitals.objects.create(
@@ -617,6 +620,7 @@ def create_visit(request, format=None):
 		deleted=0,
 		med_his=med_his,
 		encounter=encounter,
+		formdir="ros",
 		form_name="Review of Systems"
 	)
 	form_ros = FormRos.objects.create(
@@ -636,6 +640,7 @@ def create_visit(request, format=None):
 		deleted=0,
 		med_his=med_his,
 		encounter=encounter,
+		formdir="reviewofs",
 		form_name="Review of Systems Checks"
 	)
 	form_reviewofs = FormReviewofs.objects.create(
@@ -649,8 +654,7 @@ def create_visit(request, format=None):
 	# TODO If the visit does not successfully happen, send back a 400 Error
 
 	# Let the user know the POST was successful
-	if request.method == 'POST':
-		return Response(status=status.HTTP_201_CREATED)
+	return Response(status=status.HTTP_201_CREATED)
 
 
 class PatientDataList(generics.ListAPIView):
