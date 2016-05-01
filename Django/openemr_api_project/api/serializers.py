@@ -187,7 +187,7 @@ class ListsSerializer(serializers.Serializer):
 
 
 class PatientDataSerializer(serializers.ModelSerializer):
-    pubpid = serializers.CharField(required=False)
+    pubpid = serializers.CharField(required=False, allow_blank=True)
     gov_id = serializers.CharField(source='ss')
     date = serializers.DateTimeField(required=False, allow_null=True, default=timezone.now())
     fname = serializers.CharField()
@@ -214,6 +214,7 @@ class PatientDataSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         med_his = MedicalHistory.objects.create()
         print(med_his.id)
+        remove_blank_pubpid = validated_data.pop('pubpid')
         patient = PatientData.objects.create(pid=med_his, **validated_data)
         # CLEANUP - Delete Dup Medical History if it exists
         dup = MedicalHistory.objects.filter(pid=med_his.pid).latest('id')
