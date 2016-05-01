@@ -220,9 +220,9 @@ class FormVitals(models.Model):
     weight = models.FloatField(blank=True, null=True)
     height = models.FloatField(blank=True, null=True)
     bmi = models.FloatField(db_column='BMI', blank=True, null=True)  # Field name made lowercase.
-    waist_circ = models.FloatField(blank=True, null=True)
-    activity = models.IntegerField(blank=True, null=True)
-    temperature = models.FloatField(blank=True, null=True)
+    waist_circ = models.FloatField(blank=True, null=True, default=0.0)
+    activity = models.IntegerField(blank=True, null=True, default=1)
+    temperature = models.FloatField(blank=True, null=True, default=0.0)
     glucose = models.FloatField(blank=True, null=True)
 
     def __unicode__(self):
@@ -237,8 +237,8 @@ class FormReviewofs(models.Model):
     id = models.OneToOneField(Forms, db_column='id', to_field='form_id', related_name='form_reviewofs', primary_key=True)
     date = models.DateTimeField(blank=True, null=True)
     pid = models.BigIntegerField(blank=True, null=True)
-    dry_mouth = models.CharField(max_length=5, blank=True, null=True)
-    high_blood_pressure = models.CharField(max_length=5, blank=True, null=True)
+    dry_mouth = models.CharField(max_length=5, null=True, default=None)
+    high_blood_pressure = models.CharField(max_length=5, null=True, default=None)
     user = models.CharField(max_length=255, blank=True, null=True)
     groupname = models.CharField(max_length=255, blank=True, null=True)
 
