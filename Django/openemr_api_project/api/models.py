@@ -133,7 +133,7 @@ class Forms(models.Model):
     class Meta:
         managed = False
         db_table = 'forms'
-        ordering = ['encounter']
+        ordering = ['-encounter']
 
 
 class Lists(models.Model):

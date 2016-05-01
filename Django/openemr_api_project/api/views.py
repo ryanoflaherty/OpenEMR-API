@@ -568,8 +568,6 @@ def create_visit(request, format=None):
 	# Get latest encounter
 	latest_form = Forms.objects.latest('id')
 	encounter = latest_form.encounter + 1
-	import pdb;
-	pdb.set_trace()
 	# Create Form + Encounter
 	form_e = Forms.objects.create(
 		date=date,
@@ -580,7 +578,7 @@ def create_visit(request, format=None):
 		form_name="New Patient Encounter"
 	)
 	form_encounter = FormEncounter.objects.create(
-		id = form_e,
+		id=form_e,
 		pid=form_e.pid,
 		date=form_e.date,
 		encounter=encounter,
@@ -618,7 +616,7 @@ def create_visit(request, format=None):
 		encounter=encounter,
 		form_name="Review of Systems"
 	)
-	form_ros = FormRos(
+	form_ros = FormRos.objects.create(
 		id=form_r1,
 		date=form_r1.date,
 		pid=form_r1.pid,
@@ -637,7 +635,7 @@ def create_visit(request, format=None):
 		encounter=encounter,
 		form_name="Review of Systems Checks"
 	)
-	form_reviewofs = FormReviewofs(
+	form_reviewofs = FormReviewofs.objects.create(
 		id=form_r2,
 		pid=form_r2.pid,
 		date=form_r2.date,
@@ -729,7 +727,7 @@ cURL Testing
 curl -H "Content-Type: application/json" -X POST -d '{"username":"roflaherty","password":"seniordesign15"}' localhost:8000/api/token/
 
 # POST Visit
-curl -H "Content-Type: application/json" -H "Authorization: Token 2c5ca127d30af338d2dd5724280b41a975f80eaf" -X POST -d  '{"history_data":{"date":"2016-04-29T20:35:25Z","relatives_diabetes":"No","tobacco":"No","relatives_high_blood_pressure":"Yes"},"metadata":{"date":"2016-04-29T20:35:25Z","duration":"00:25:34","internet":3,"lat":42.3492813,"lon":-71.106701,"name":"admin","patient_exists":"Yes","pubpid":"00000001"},"patient_data":{"address":"15 St Mary St","city":"Boston","country_code":"USA","date":"2016-04-14T17:25:09Z","dob":"2001-01-01","email":"ironman@bu.edu","fname":"Iron","gov_id":"11111111","lname":"Man","mname":"","phone_cell":"333-333-3333","phone_contact":"","postal_code":"02215","pubpid":"00000001","sex":"Male","state":"MA","status":"single"},"visit":{"bmi":"234","bpd":"80","bps":"120","date":"2016-04-29T20:35:25Z","diabetes":"Yes","dizziness":"Yes","dry_mouth":"Yes","glucose":"80","height":"72","high_blood_pressure":"No","numbness":"No","pregnant":"No","pulse": "60","user":"admin","weight":"140"}}' localhost:8000/api/records/
+curl -H "Content-Type: application/json" -H "Authorization: Token 2c5ca127d30af338d2dd5724280b41a975f80eaf" -X POST -d  '{"history_data":{"date":"2016-04-30T20:18:25Z","relatives_diabetes":"Yes","relatives_high_blood_pressure":"No","tobacco":"No"},"metadata":{"date":"2016-04-30T20:18:25Z","duration":"00:25:34","internet":3,"lat":42.3492813,"lon":-71.106701,"name":"admin","patient_exists":"Yes","pubpid":"00000001"},"patient_data":{"address":"15 St Mary St","city":"Boston","country_code":"USA","date":"2016-04-14T17:25:09Z","dob":"2001-01-01","email":"ironman@bu.edu","fname":"Iron","gov_id":"11111111","lname":"Man","mname":"","phone_cell":"333-333-3333","phone_contact":"","postal_code":"02215","pubpid":"00000001","sex":"Male","state":"MA","status":"single"},"visit":{"bmi":23,"bpd":80,"bps":120,"date":"2016-04-30T20:18:25Z","diabetes":"No","dizziness":"Yes","dry_mouth":"No","glucose":80,"height":72.0,"high_blood_pressure":"Yes","numbness":"Yes","pregnant":"No","pulse":77,"user":"admin","weight":140}}' localhost:8000/api/records/
 
 # GET patient data
 curl -X GET "localhost:8000/api/records/patient-data?pubpid=28005573" -H "Authorization: Token 22f0fbbbe579ecaa4acc19b8011931aabae8fe0a"
