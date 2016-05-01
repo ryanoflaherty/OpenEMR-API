@@ -65,8 +65,10 @@ class ObtainExpiringAuthToken(ObtainAuthToken):
 				token.save()
 
 			return Response({'token': token.key})
-
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+		elif "non_field_errors" in serializer.errors:
+			return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+		else:
+			return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 # Public Views (Anyone can view)
