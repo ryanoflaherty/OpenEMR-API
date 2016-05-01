@@ -197,7 +197,7 @@ class FormEncounter(models.Model):
     id = models.OneToOneField(Forms, db_column='id', to_field='form_id', related_name='form_encounter', primary_key=True)
     pid = models.BigIntegerField(blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
-    facility_id = models.ForeignKey(Facility, db_column='facility', to_field='name', related_name='facility')
+    facility_id = models.ForeignKey(Facility, db_column='facility', to_field='name', related_name='facility', default='location1')
     encounter = models.BigIntegerField(unique=True)
 
     def __unicode__(self):
