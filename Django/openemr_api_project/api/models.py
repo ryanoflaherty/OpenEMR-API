@@ -241,6 +241,7 @@ class FormReviewofs(models.Model):
     high_blood_pressure = models.CharField(max_length=5, null=True, default=None)
     user = models.CharField(max_length=255, blank=True, null=True)
     groupname = models.CharField(max_length=255, blank=True, null=True)
+    activity = models.IntegerField(default=1)
 
     def __unicode__(self):
        return str(self.pid) + ', ' + str(self.date)
