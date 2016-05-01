@@ -493,6 +493,7 @@ def create_visit(request, format=None):
 	# Step 1 Get Metadata and Validate PatientData
 	# Read in meta data for preprocessing, store data for use later in analytics
 	# Check metadata for info about the patient
+	import pdb; pdb.set_trace()
 	if 'metadata' in request.data:			# TODO Make a Metadata class
 		meta = request.data['metadata']		# if there is metadata, get it
 
@@ -727,10 +728,10 @@ cURL Testing
 curl -H "Content-Type: application/json" -X POST -d '{"username":"roflaherty","password":"seniordesign15"}' localhost:8000/api/token/
 
 # POST Visit
-curl -H "Content-Type: application/json" -H "Authorization: Token 2c5ca127d30af338d2dd5724280b41a975f80eaf" -X POST -d  '{"history_data":{"date":"2016-04-30T20:18:25Z","relatives_diabetes":"Yes","relatives_high_blood_pressure":"No","tobacco":"No"},"metadata":{"date":"2016-04-30T20:18:25Z","duration":"00:25:34","internet":3,"lat":42.3492813,"lon":-71.106701,"name":"admin","patient_exists":"Yes","pubpid":"00000001"},"patient_data":{"address":"15 St Mary St","city":"Boston","country_code":"USA","date":"2016-04-14T17:25:09Z","dob":"2001-01-01","email":"ironman@bu.edu","fname":"Iron","gov_id":"11111111","lname":"Man","mname":"","phone_cell":"333-333-3333","phone_contact":"","postal_code":"02215","pubpid":"00000001","sex":"Male","state":"MA","status":"single"},"visit":{"bmi":23,"bpd":80,"bps":120,"date":"2016-04-30T20:18:25Z","diabetes":"No","dizziness":"Yes","dry_mouth":"No","glucose":80,"height":72.0,"high_blood_pressure":"Yes","numbness":"Yes","pregnant":"No","pulse":77,"user":"admin","weight":140}}' localhost:8000/api/records/
+curl -H "Content-Type: application/json" -H "Authorization: Token a595577e7590b38b4a8b282283abe2d5978c5c4f" -X POST -d  '{"history_data":{"date":"2016-05-01T18:33:36Z","relatives_diabetes":"Yes","relatives_high_blood_pressure":"No","tobacco":"Yes"},"metadata":{"date":"2016-05-01T18:34:13Z","duration":"00:25:34","lat":42.3492813,"lon":-71.106701,"name":"admin","patient_exists":"Yes","pubpid":"00000001","internet":3},"patient_data":{"address":"15 St Mary St","city":"Boston","country_code":"USA","date":"2016-04-14T17:25:09Z","dob":"2001-01-01","email":"ironman@bu.edu","fname":"Iron","gov_id":"11111111","lname":"Man","mname":"","phone_cell":"333-333-3333","phone_contact":"","postal_code":"02215","pubpid":"00000001","sex":"Male","state":"MA","status":"single"},"visit":{"date":"2016-05-01T18:33:36Z","diabetes":"No","dizziness":"Yes","dry_mouth":"Yes","high_blood_pressure":"Yes","numbness":"No","pregnant":"No","user":"roflaherty","height":71.0,"bmi":26,"bpd":70,"bps":100,"glucose":121,"pulse":40,"weight":180}}' https://www.remotehcs.com/api/records/
 
 # GET patient data
-curl -X GET "localhost:8000/api/records/patient-data?pubpid=28005573" -H "Authorization: Token 22f0fbbbe579ecaa4acc19b8011931aabae8fe0a"
+curl -X GET "https://www.remotehcs.com/api/records/patient-data?pubpid=28005573" -H "Authorization: Token a595577e7590b38b4a8b282283abe2d5978c5c4f"
 
 # GET visits
 curl -X GET "http://http-env.us-east-1.elasticbeanstalk.com/api/records/28005573/visits" -H "Authorization: Token b7b1b9eb162121622e50231e3be5ad01b81f7ce9"
